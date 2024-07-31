@@ -1,50 +1,549 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject IProfileService profileService
+
+@{
+    string parent_menu = "navigationApps";
+    if (ViewData["parent_menu"] != null)
+    {
+        parent_menu = ViewData["parent_menu"].ToString();
+    }
+
+    string controller = this.ViewContext.RouteData.Values["controller"].ToString();
+    string action = $"{this.ViewContext.RouteData.Values["controller"].ToString()}{this.ViewContext.RouteData.Values["action"].ToString()}";
+    if (ViewData["PAGEID"] != null)
+    {
+        action += ViewData["PAGEID"].ToString();
+    }
+    string chart_source = string.Empty;
+    if (ViewData["ChartSource"] != null)
+    {
+        chart_source = ViewData["ChartSource"].ToString();
+    }
+
+    var user = await UserManager.GetUserAsync(User);
+    var roles = await UserManager.GetRolesAsync(user);
+    var profile = await profileService.GetUserProfileAsync(user.Id);
+    var role_access = await profileService.GetUserRoleAccessAsync(user.Id);
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TicketSupport</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/TicketSupport.styles.css" asp-append-version="true" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>داشبورد مدیریتی | @ViewData["Parent_Title"] | @ViewData["Title"]</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="~/assets/media/image/favicon.png">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#5867dd">
+
+    <!-- Plugin styles -->
+    <link rel="stylesheet" href="~/vendors/bundle.css" type="text/css">
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="~/assets/css/app.css" type="text/css">
+    <!-- jQuery -->
+    <script src="~/jquery/dist/jquery.min.js"></script>
+    <link href="~/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <script src="~/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="~/jquery-ui-1.12.1.custom/jquery.ui.autocomplete.scroll.min.js"></script>
+    <style>
+            .navigation .navigation-icon-menu {
+                background-color: #dd5858 !important;
+            }
+
+            .navigation > .navigation-menu-body > ul li a.active, .navigation > .navigation-menu-body > ul li.open > a {
+                color: #dd5858 !important;
+            }
+
+            .header .header-body .breadcrumb .breadcrumb-item.active, .header .header-body .breadcrumb .navigation > .navigation-menu-body > ul li.open > a.breadcrumb-item, .navigation > .navigation-menu-body > ul .header .header-body .breadcrumb li.open > a.breadcrumb-item {
+                color: #dd5858 !important;
+            }
+
+            .ui-widget.ui-widget-content {
+                z-index: 9999;
+            }
+    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TicketSupport</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+<body class="@profile.ThemeColor @profile.NavigationSize">
+
+    <!-- begin::page loader-->
+    <div class="page-loader">
+        <div class="spinner-border"></div>
+    </div>
+    <!-- end::page loader -->
+    <!-- begin::sidebar user profile -->
+    <div class="sidebar" id="userProfile">
+        <div class="text-center p-4">
+            <figure class="avatar avatar-state-success avatar-lg mb-4">
+                @if (!string.IsNullOrWhiteSpace(profile.Avatar))
+                {
+                    <img src="@profile.Avatar" class="rounded-circle" alt="@profile.FullName">
+                }
+                else
+                {
+                    <img src="~/assets/media/image/logo-sm.png" class="rounded-circle" alt="@profile.FullName">
+                }
+
+            </figure>
+            <h4 class="text-primary m-b-10">@profile.FullName</h4>
+            <p class="text-muted d-flex align-items-center justify-content-center line-height-0 mb-0">
+                <div class="mb-4">
+                    @profile.Username
+                </div>
+                <div class="mb-4">
+                    <a asp-action="Index" asp-controller="Manage" data-toggle="tooltip" title="مدیریت پروفایل" class="btn btn-primary btn-pulse text-white"> <i class="ti-user mr-2"></i> مدیریت پروفایل</a>
+
+                </div>
+                <div class="mb-4">
+                    <a href="#" data-toggle="tooltip" title="تنظیمات" data-sidebar-open="#settings" class="btn btn-outline-warning btn-pulse text-warning">
+                        <i class="ti-settings mr-2"></i> تنظیمات
+                    </a>
+                </div>
+            </p>
+        </div>
+        <hr class="m-0">
+
+        <div class="p-4">
+
+
+            <div class="mb-4">
+                <span>
+                    ایمیل :
+                    @if (user.EmailConfirmed)
+                    {
+                        <i class="fa fa-check text-success"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-cross text-danger"></i>
+                    } @profile.Email
+                </span>
+            </div>
+            <div class="mb-4">
+                <span>
+                    تلفن همراه :
+                    @if (user.PhoneNumberConfirmed)
+                    {
+                        <i class="fa fa-check text-success"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-cross text-danger"></i>
+                    }@profile.Phonenumber
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- end::sidebar user profile -->
+    <!-- begin::sidebar settings -->
+    <div class="sidebar" id="settings">
+        <header>
+            <i class="ti-settings"></i> تنظیمات
+        </header>
+        <div class="p-4">
+            <div class="mb-3">
+                <h6 class="font-size-13 mb-3 text-muted">سیستم</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between p-l-r-0 p-t-b-5">
+
+                        <span>تم تاریک</span>
+                        <div class="custom-control custom-switch">
+                            @if (profile.ThemeColor == "dark")
+                            {
+                                <input type="checkbox" class="custom-control-input" id="customSwitch1" checked onchange="ChangeThemeTo('light')">
+                            }
+                            else
+                            {
+                                <input type="checkbox" class="custom-control-input" id="customSwitch1" onchange="ChangeThemeTo('dark')">
+                            }
+                            <label class="custom-control-label" for="customSwitch1"></label>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-l-r-0 p-t-b-5">
+
+                        <span>منوی کناری کوچک </span>
+                        <div class="custom-control custom-switch">
+                            @if (profile.NavigationSize == "small-navigation")
+                            {
+                                <input type="checkbox" class="custom-control-input" id="customSwitch2" checked onchange="ChangeNavigationType('normal-navigation')">
+                            }
+                            else
+                            {
+                                <input type="checkbox" class="custom-control-input" id="customSwitch2" onchange="ChangeNavigationType('small-navigation')">
+                            }
+                            <label class="custom-control-label" for="customSwitch2"></label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    <!-- end::sidebar settings -->
+    <!-- begin::navigation -->
+    <div class="navigation">
+        <div class="navigation-icon-menu">
+            <ul>
+                @*<li class="@(parent_menu == "navigationDashboards"  ? "active":"")" data-toggle="tooltip" title="داشبورد">
+                    <a href="#navigationDashboards" title="داشبوردها">
+                    <i class="icon ti-pie-chart"></i>
+                    <span class="badge badge-warning">2</span>
+                    </a>
+                    </li>*@
+                <li class="@(parent_menu == "navigationCharts" ? "active" : "")" data-toggle="tooltip" title="نمودارها">
+                    <a href="#navigationCharts" title="نمودارها">
+                        <i class="icon ti-pie-chart"></i>
+                        <span class="badge badge-warning">2</span>
+                    </a>
+                </li>
+                <li class="@(parent_menu == "navigationApps" ? "active" : "")" data-toggle="tooltip" title="عملکرد عملیاتی / مالی">
+                    <a href="#navigationApps" title="عملکرد عملیاتی / مالی">
+                        <i class="icon ti-package"></i>
+                    </a>
+                </li>
+                @if (role_access.Users != TicketSupport.DAL.Enums.AccessLevel.None)
+                {
+                    <li data-toggle="tooltip" title="کاربران">
+                        <a asp-action="Index" asp-controller="Users" title="کاربران" class="go-to-page">
+                            <i class="icon ti-user"></i>
+                        </a>
+                    </li>
+                }
+                @if (role_access.ManageRoleAccess != TicketSupport.DAL.Enums.AccessLevel.None)
+                {
+                    <li data-toggle="tooltip" title="سطوح دسترسی">
+                        <a asp-action="Index" asp-controller="RoleAccess" class="go-to-page" title="سطوح دسترسی">
+                            <i class="icon ti-shield"></i>
+                        </a>
+                    </li>
+                }
+
+
+            </ul>
+            <ul>
+
+                <li data-toggle="tooltip" title="ویرایش پروفایل">
+                    <a asp-action="Index" asp-controller="Manage" class="go-to-page">
+                        <i class="icon ti-settings"></i>
+                    </a>
+                </li>
+                <li data-toggle="tooltip" title="خروج">
+                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                        <button href="@Url.Action("SignOut", "Account")" onclick="RemoveCoockies()" class=" go-to-page btn-block" style="padding: 10px; background-color:#dd5858 !important;border:none">
+                            <i class="icon ti-power-off text-white"></i>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <div class="navigation-menu-body">
+            @*<ul id="navigationDashboards" class="@(parent_menu == "navigationDashboards"? "navigation-active":"")">
+                <li class="navigation-divider">داشبورد</li>
+                <li>
+                <a class="@(action=="DashboardView360" ?"active":"")" asp-controller="Dashboard" asp-action="View360">نگاه 360 درجه</a>
+                </li>
+                <li>
+                <a asp-controller="Dashboard" asp-action="Goals">اهداف</a>
+                </li>
+
+                <li>
+                <a href="#">عملکرد مالی</a>
+                <ul>
+                <li><a asp-controller="Dashboard" asp-action="ProfitsAndCash">مقایسه سود و وجوه نقد</a></li>
+                <li><a asp-controller="Dashboard" asp-action="ProfitabilityRatios">نسبت سود آوری</a></li>
+                <li><a asp-controller="Dashboard" asp-action="CashRatios">نسبت نقدینگی</a></li>
+                <li><a asp-controller="Dashboard" asp-action="CapitalStructureRatios">ساختار سرمایه</a></li>
+                <li><a asp-controller="Dashboard" asp-action="ActivityRatios">نسبت های فعالیت </a></li>
+                </ul>
+                </li>
+
+                <li>
+                <a href="#">عملکرد عملیاتی</a>
+                <ul>
+                <li><a asp-controller="Dashboard" asp-action="Customers">مشتریان</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Marketing">بازاریابی</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Sales">فروش</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Efficiency">بهره وری</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Manufacturing">تولید</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Equipment">تجهیزات</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Materials">کالا و مواد اولیه</a></li>
+                <li><a asp-controller="Dashboard" asp-action="HumanResources">نیروی انسانی</a></li>
+                <li><a asp-controller="Dashboard" asp-action="Delivery">ارسال و تحویل محصول</a></li>
+                <li><a asp-controller="Dashboard" asp-action="SupportServices">خدمات پشتیبانی</a></li>
+
+                </ul>
+                </li>
+                <li><a asp-controller="Dashboard" asp-action="CauseAndEffectRelationships">روابط علت و معلولی</a></li>
+
+
+                </ul>*@
+            <ul id="navigationCharts" class="@(parent_menu == "navigationCharts" ? "navigation-active" : "")">
+                <li class="navigation-divider">نمایش اطلاعات</li>
+
+            </ul>
+            <ul id="navigationApps" class="@(parent_menu == "navigationApps" ? "navigation-active" : "")">
+                <li class="navigation-divider">ورود اطلاعات</li>
+  
+                <li class="@(controller == "Accounting" ? "open" : "")">
+                    <a href="#">  تیکت</a>
+                    <ul>
+                        <li><a class="@(action == "AccountingYearly" ? "active" : "")" asp-controller="" asp-action="#"> ثبت تیکت</a></li>
+                        <li><a class="@(action == "AccountingMonthly" ? "active" : "")" asp-controller="" asp-action="#"> لیست تیکت</a></li>
                     </ul>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+    <!-- end::navigation -->
+    <!-- begin::header -->
+    <div class="header">
+
+        <!-- begin::header logo -->
+        <div class="header-logo">
+            <a href="https://gazellecg.com" target="_blank">
+                <img class="large-logo" src="~/assets/media/image/logo.png" alt="image">
+                <img class="small-logo" src="~/assets/media/image/logo-sm.png" alt="image">
+                <img class="dark-logo" src="~/assets/media/image/logo-dark.png" alt="image">
+            </a>
+        </div>
+        <!-- end::header logo -->
+        <!-- begin::header body -->
+        <div class="header-body">
+
+            <div class="header-body-left">
+
+                <h3 class="page-title">@ViewData["Title"]</h3>
+
+                <!-- begin::breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
+                        <li class="breadcrumb-item "><a href="@ViewData["Parent_URL"]">@ViewData["Parent_Title"]</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                    </ol>
+                </nav>
+                <!-- end::breadcrumb -->
+
+            </div>
+
+            <div class="header-body-right">
+                <!-- begin::navbar main body -->
+                <ul class="navbar-nav">
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link bg-none" data-sidebar-open="#userProfile">
+                            <div>
+                                <figure class="avatar avatar-state-success avatar-sm">
+                                    @if (!string.IsNullOrWhiteSpace(profile.Avatar))
+                                    {
+                                        <img src="@profile.Avatar" class="rounded-circle" alt="@profile.FullName">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/assets/media/image/logo-sm.png" class="rounded-circle" alt="@profile.FullName">
+                                    }
+                                </figure>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <!-- end::navbar main body -->
+
+                <div class="d-flex align-items-center">
+                    <!-- begin::navbar navigation toggler -->
+                    <div class="d-xl-none d-lg-none d-sm-block navigation-toggler">
+                        <a href="#">
+                            <i class="ti-menu"></i>
+                        </a>
+                    </div>
+                    <!-- end::navbar navigation toggler -->
+                    <!-- begin::navbar toggler -->
+                    <div class="d-xl-none d-lg-none d-sm-block navbar-toggler">
+                        <a href="#">
+                            <i class="ti-arrow-down"></i>
+                        </a>
+                    </div>
+                    <!-- end::navbar toggler -->
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 1403 - TicketSupport - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+        <!-- end::header body -->
 
+    </div>
+    <!-- end::header -->
+    <!-- begin::main content -->
+    <main class="main-content">
+
+        @if (TempData["success_msg"] != null)
+        {
+            <div class="alert alert-success alert-with-border alert-dismissible" role="alert">
+                <i class="ti-check m-r-10"></i> @TempData["success_msg"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+        }
+        @if (TempData["error_msg"] != null)
+        {
+            <div class="alert alert-danger alert-with-border alert-dismissible" role="alert">
+                <i class="ti-check m-r-10"></i> @TempData["error_msg"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+        }
+        @if (TempData["msg"] != null)
+        {
+            <div class="alert alert-info alert-with-border alert-dismissible" role="alert">
+                <i class="ti-check m-r-10"></i> @TempData["error_msg"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+        }
+        <div class="row">
+            @RenderBody()
+        </div>
+
+    </main>
+    <!-- end::main content -->
+
+
+
+    <!-- begin::global scripts -->
+
+    <script src="~/vendors/bundle.js"></script>
+    <!-- end::global scripts -->
+    <!-- begin::custom scripts -->
+    <script src="~/assets/js/custom.js"></script>
+    <script src="~/assets/js/app.js"></script>
+
+    <!-- Datepicker -->
+    <script src="~/vendors/datepicker-jalali/bootstrap-datepicker.min.js"></script>
+    <script src="~/vendors/datepicker-jalali/bootstrap-datepicker.fa.min.js"></script>
+    <script src="~/vendors/datepicker/daterangepicker.js"></script>
+
+
+    <!-- end::custom scripts -->
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/jquery/carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+
+    <script type="text/javascript">
+
+
+        $('input[name="date"]').datepicker({
+            dateFormat: "yy/mm/dd",
+            showOtherMonths: true,
+            selectOtherMonths: true
+        });
+        // Check If Cookie exists and if it doesn't exists
+
+        if ($.cookie('welcome') == null) {
+            var date = new Date();
+            var minutes = 30;
+            date.setTime(date.getTime() + (minutes * 60 * 1000));
+            // Create cookie
+            $.cookie('welcome', '1', { expires: date, path: '/' });
+            $(document).ready(function () {
+                $('.page-loader').fadeOut(700, function () {
+                    setTimeout(function () {
+                        toastr.options = {
+                            timeOut: 3000,
+                            progressBar: true,
+                            showMethod: "slideDown",
+                            hideMethod: "slideUp",
+                            showDuration: 200,
+                            hideDuration: 200
+                        };
+                        toastr.success('@string.Format("خوش آمدید {0}",profile.FullName)');
+                    }, 1000);
+                });
+            });
+            // Display popup
+
+        }
+
+        function RemoveCoockies() {
+            $.removeCookie('welcome'); // => true
+        }
+
+        function ChangeThemeTo(theme) {
+
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("ChangeTheme","Users")',
+                data: {
+                    id: '@profile.Id',
+                    theme: theme,
+                },
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data == "true") {
+                        window.location.href = window.location.href;
+                    }
+                },
+                error: function (err) {
+
+                }
+            })
+        }
+        function ChangeNavigationType(size) {
+
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("ChangeNavigation","Users")',
+                data: {
+                    id: '@profile.Id',
+                    size: size,
+                },
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data == "true") {
+                        window.location.href = window.location.href;
+                    }
+                },
+                error: function (err) {
+
+                }
+            })
+        }
+
+        var CheckLogin = function () {
+            //your jQuery ajax code
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("CheckLogin","Home")',
+                data: {
+                    id: '@profile.Id',
+                },
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (err) {
+
+                }
+            })
+        };
+
+        var interval = 1000 * 10 * 1; // where X is your every X minutes
+
+        setInterval(CheckLogin, interval);
+
+        
+
+    </script>
+</body>
+
+</html>

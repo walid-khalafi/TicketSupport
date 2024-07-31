@@ -1,0 +1,21 @@
+﻿@model LoginWithRecoveryCodeViewModel
+@{
+    Layout = "_LayoutLogin";
+    ViewData["Title"] = "ورود به سیستم با کد ریکاوری";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+<p>
+    شما درخواست ورود به سیستم از طریق کد ریکاوری را داده اید.
+</p>
+<form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="RecoveryCode"></label>
+                <input asp-for="RecoveryCode" class="form-control" autocomplete="off" />
+                <span asp-validation-for="RecoveryCode" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-default">ورود به سیستم</button>
+        </form>
+

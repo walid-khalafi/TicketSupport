@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/media/image/favicon.png">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#5867dd">
+
+    <!-- Plugin styles -->
+    <link rel="stylesheet" href="~/vendors/bundle.css" type="text/css">
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="~/assets/css/app.css" type="text/css">
+</head>
+
+<body class="form-membership">
+
+    <!-- begin::page loader-->
+    <div class="page-loader">
+        <div class="spinner-border"></div>
+    </div>
+    <!-- end::page loader -->
+
+    <div class="form-wrapper">
+        @if (TempData["success_msg"] != null)
+        {
+            <div class="alert alert-success alert-with-border alert-dismissible" role="alert">
+                <i class="ti-check m-r-10"></i> @TempData["success_msg"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+        }
+        @if (TempData["error_msg"] != null)
+        {
+            <div class="alert alert-danger alert-with-border alert-dismissible" role="alert">
+                <i class="ti-check m-r-10"></i> @TempData["error_msg"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+        }
+        @if (TempData["msg"] != null)
+        {
+            <div class="alert alert-info alert-with-border alert-dismissible" role="alert">
+                <i class="ti-check m-r-10"></i> @TempData["error_msg"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="بستن">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+        }
+        @RenderBody()
+
+
+
+    </div>
+
+    <!-- Plugin scripts -->
+    <script src="~/vendors/bundle.js"></script>
+
+    <!-- App scripts -->
+    <script src="~/assets/js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,35 @@
+﻿@model LoginWith2faViewModel
+@{
+    Layout = "_LayoutLogin";
+    ViewData["Title"] = "رمز عبور دو مرحله ای";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+<p>اشتراک شما با رمز عبور دو مرحله ای محافظت شده است لطفا رمز عبور دوم را وارد نمایید</p>
+
+<form method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+            <input asp-for="RememberMe" type="hidden" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="TwoFactorCode"></label>
+                <input asp-for="TwoFactorCode" class="form-control" autocomplete="off" />
+                <span asp-validation-for="TwoFactorCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label asp-for="RememberMachine">
+                        <input asp-for="RememberMachine" />
+                        @Html.DisplayNameFor(m => m.RememberMachine)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-default">ورود به سیستم</button>
+            </div>
+        </form>
+
+<p>
+    دسترسی به دستگاهی که رمز عبور دوم را تولید میکند ندارید ؟ شما می توانید 
+    <a asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@ViewData["ReturnUrl"]">با کد ریکاوری وارد اشتراک خود شوید</a>.
+</p>

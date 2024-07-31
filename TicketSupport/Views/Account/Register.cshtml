@@ -1,0 +1,41 @@
+﻿@model RegisterViewModel
+@{
+    ViewData["Title"] = "فرم ثبت نام";
+    Layout = "_LayoutLogin";
+}
+
+
+<form asp-controller="Account" asp-action="Register" asp-route-returnUrl="@ViewData[" ReturnUrl"]" method="post" id="loginform" class="form-horizontal form-material">
+    @Html.AntiForgeryToken()
+   
+    <div class="form-group ">
+        <div class="col-xs-12">
+            <input asp-for="PhoneNumber" class="form-control" placeholder="شماره تماس ..." />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group ">
+        <div class="col-xs-12">
+            <input asp-for="Password" class="form-control" placeholder="رمز عبور ..." />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-12">
+            <input asp-for="ConfirmPassword" class="form-control" placeholder="تکرار رمز عبور ..." />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group text-center m-t-20">
+        <div class="col-xs-12">
+            <button class="btn btn-primary btn-block" type="submit">ثبت نام</button>
+        </div>
+    </div>
+    <div class="form-group m-b-0">
+        <div class="col-sm-12 text-center">
+            <p>درحال حاضر اشتراک دارید ? <a href="@Url.Action("Login")" class="text-primary m-l-5"><b>ورود به سیستم</b></a></p>
+        </div>
+    </div>
+</form>
