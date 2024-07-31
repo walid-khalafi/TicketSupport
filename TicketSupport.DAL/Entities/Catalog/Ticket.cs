@@ -3,8 +3,8 @@ namespace TicketSupport.DAL.Entities.Catalog
 {
 	public class Ticket:CommonFields
 	{
-		public Ticket()
-		{
+        public Ticket()
+        {
 		}
 
         public string Subject { get; set; }
