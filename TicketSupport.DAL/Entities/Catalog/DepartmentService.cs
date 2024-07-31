@@ -9,7 +9,8 @@ namespace TicketSupport.DAL.Entities.Catalog
         public string DepartmentId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+		public string? DefaultUserId { get; set; }
 
-    }
+	}
 }
 
