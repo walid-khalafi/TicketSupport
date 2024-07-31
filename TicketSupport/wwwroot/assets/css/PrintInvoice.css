@@ -1,0 +1,42 @@
+﻿/* style sheet for "A4" printing */
+body {
+    -webkit-print-color-adjust: exact !important;
+}
+.page {
+    margin: 10px auto;
+    border: 1px #D3D3D3 solid;
+    border-radius: 5px;
+    width:auto;
+    padding:1px;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.subpage {
+   
+}
+
+@page {
+    size: 8cm 11cm;
+    margin: 0cm;
+}
+
+@media print {
+    .page {
+        margin: 0cm;
+        border: initial;
+        border-radius: initial;
+        width: initial;
+        min-height: initial;
+        box-shadow: initial;
+        background: initial;
+        page-break-after: always;
+
+
+    }
+    .even {
+        background-color:#f1f1f1;
+    }
+    table tr.highlighted > td {
+        background-color: rgba(247, 202, 24, 0.3) !important;
+    }
+}
