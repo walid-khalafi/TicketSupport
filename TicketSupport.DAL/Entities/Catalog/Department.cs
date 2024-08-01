@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace TicketSupport.DAL.Entities.Catalog
 {
 	public class Department:CommonFields
@@ -6,9 +8,12 @@ namespace TicketSupport.DAL.Entities.Catalog
 		public Department()
 		{
 		}
+		[Display(Name ="عنوان")]
 		public string Title { get; set; }
-		public string Description { get; set; }
-		public string DepartmentAdminId { get; set; }
+        [Display(Name = "توضیحات")]
+        public string Description { get; set; }
+        [Display(Name = "مدیر دپارتمان")]
+        public string DepartmentAdminId { get; set; }
 	}
 }
 
