@@ -11,17 +11,70 @@
 }
 
 <div class="col-md-12">
-    <div class="col-md-9">
-        <div class="card">
-            <div class="card-header">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <strong class="text-muted">@Model.Subject</strong>
+                </div>
+                <div class="card-body">
+                   
+                    <p>@Html.Raw(Model.Body)</p>
+                </div>
+            </div>
 
-            </div>
-            <div class="card-body">
-                <h3>@Model.Subject</h3>
-                <p>@Html.Raw(Model.Body)</p>
-            </div>
+
         </div>
-        
-        
+        <div class="col-md-4">
+            <div class="card chat-app-wrapper">
+                <div class="row chat-app">
+
+                    <div class="col-xl-12 col-md-12 chat-body">
+                        <div class="chat-body-header">
+                            <a href="#" class="btn btn-dark opacity-3 m-r-10 btn-chat-sidebar-open">
+                                <i class="ti-menu"></i>
+                            </a>
+                            <div>
+                                <figure class="avatar avatar-sm m-r-10">
+                                    <img src="~/assets/media/image/avatar.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 primary-font line-height-18">بری الن</h6>
+                                <span class="small text-success">در حال نوشتن ...</span>
+                            </div>
+                           
+                        </div>
+                        <div class="chat-body-messages">
+                            <div class="message-items">
+                            
+
+                                <div class="message-item">
+                                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت
+                                </div>
+                                <div class="message-item outgoing-message">
+                                    لورم ایپسوم متن ساختگی
+                                    <small class="message-item-date text-muted">22.30</small>
+                                </div>
+                                <div class="message-item">&bull; &bull; &bull;</div>
+                            </div>
+                        </div>
+                        <div class="chat-body-footer">
+                            <form class="d-flex align-items-center">
+                                <input type="text" class="form-control" placeholder="پیام ...">
+                                <div class="d-flex">
+                                    <button type="button" class="ml-3 btn btn-primary btn-floating">
+                                        <i class="fa fa-send"></i>
+                                    </button>
+                         
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
+
 </div>
