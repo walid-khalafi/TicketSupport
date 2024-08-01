@@ -308,7 +308,60 @@ namespace TicketSupport.WEB.Controllers
 
         }
 
-      
+
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
+        {
+
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return StatusCode(404);
+            }
+
+            var model = await _ticketService.GetTicketAsync(id);
+            if (model == null)
+            {
+                return StatusCode(404);
+            }
+
+            ViewData["can_assign_user"] = await _ticketService.CanAssignUserToTicket(model.Id);
+
+            await _ticketService.StateSeenTicketAsync(id);
+            var drp_users = await _ticketService.GetTicketUsersSupport(id);
+            ViewData["drp_users"] = new SelectList(drp_users, "user_id", "full_name");
+            UserListModel assined_user = new UserListModel();
+            if (model.Assign != null)
+            {
+                var assign_users = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TicketAssignModel>>(model.Assign);
+                if (assign_users == null)
+                {
+                    assined_user.user_id = Guid.Empty.ToString();
+                    assined_user.full_name = "تیکت هنوز به کاربری اختصاص داده نشده است";
+                }
+                else
+                {
+                    var last_assigned = assign_users.OrderByDescending(x => x.assigned_date).First();
+                    var selected_user = await _profileService.GetUserProfileAsync(last_assigned.user_id);
+                    if (selected_user != null)
+                    {
+                        assined_user.user_id = selected_user.Id;
+                        assined_user.full_name = selected_user.FullName;
+                        assined_user.avatar = selected_user.Avatar;
+                        assined_user.date = last_assigned.assigned_date;
+                    }
+
+                }
+            }
+            else
+            {
+                assined_user.user_id = Guid.Empty.ToString();
+                assined_user.full_name = "تیکت هنوز به کاربری اختصاص داده نشده است";
+            }
+            ViewData["assined_user"] = assined_user;
+           
+            return View(model);
+        }
+
 
     }
 }
