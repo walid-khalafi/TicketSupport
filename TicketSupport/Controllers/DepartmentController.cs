@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TicketSupport.DAL;
 using TicketSupport.DAL.Entities.Catalog;
@@ -39,7 +40,9 @@ namespace TicketSupport.WEB.Controllers
         // GET: /<controller>/
         public async Task<IActionResult> Index()
         {
-            var model = await _context.Departments.ToListAsync();
+            var users = await _profileService.GetUsersProfileAsync();
+            ViewData["DepartmentAdminId"] = new SelectList(users, "Id", "FullName");
+            var model = await _context.Departments.Where(x=>x.IsDeleted == false).ToListAsync();
             if (model == null)
             {
                 return View(new List<Department>());
@@ -54,7 +57,7 @@ namespace TicketSupport.WEB.Controllers
             {
                 return BadRequest();
             }
-            var department = await Task.FromResult(_context.Departments.FirstOrDefault(x => x.Title == model.Title && x.Id == model.Id && x.IsDeleted == true));
+            var department = await Task.FromResult(_context.Departments.FirstOrDefault(x => x.Title == model.Title  && x.IsDeleted == true));
             if (department == null)
             {
                 model.Id = Guid.NewGuid().ToString();
