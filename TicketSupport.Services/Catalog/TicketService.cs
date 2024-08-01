@@ -442,7 +442,7 @@ namespace TicketSupport.Services.Catalog
         public async Task<List<Ticket>> GetNewTicketListAsync()
         {
             var tickets = await GetUserTicketsAsync("inbox");
-            if (tickets == null)
+            if (tickets == null || tickets.Count == 0)
             {
                 return new List<Ticket>();
             }
@@ -451,7 +451,7 @@ namespace TicketSupport.Services.Catalog
             ).ToList();
 
 
-            if (tickets == null)
+            if (tickets == null || tickets.Count  == 0)
             {
                 return new List<Ticket>();
             }
@@ -562,7 +562,7 @@ namespace TicketSupport.Services.Catalog
             }
           
             var drp_tickets = await Task.FromResult(_context.Tickets.Where(x => x.DepartmentId == user.DepartmentId).ToList());
-            if (drp_tickets !=null)
+            if (drp_tickets !=null && drp_tickets.Count > 0)
             {
                 var user_tickets = drp_tickets.Where(x => x.CreatedBy == user.Id).ToList();
                 if (user_tickets !=null)
@@ -991,6 +991,34 @@ namespace TicketSupport.Services.Catalog
             }
 
             return "false";
+        }
+
+        public async Task<ProfileViewModel> GetLastTicketUserSupportAsync(string ticket_id)
+        {
+            if (string.IsNullOrWhiteSpace(ticket_id))
+            {
+                return null;
+            }
+            var ticket = await GetTicketAsync(ticket_id);
+            if (ticket == null)
+            {
+                return null;
+            }
+            if (string.IsNullOrWhiteSpace(ticket.Assign))
+            {
+                return null;
+            }
+            var users_assigned = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TicketAssignModel>>(ticket.Assign);
+            if (users_assigned == null)
+            {
+                return null;
+            }
+            var profile = await _profileService.GetUserProfileAsync(users_assigned.LastOrDefault().user_id);
+            if (profile == null)
+            {
+                return null;
+            }
+            return profile;
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using TicketSupport.DAL.Entities.Catalog;
+using TicketSupport.DAL.Entities.User;
+using TicketSupport.Services.Users;
 
 namespace TicketSupport.Services.Catalog
 {
@@ -25,6 +27,7 @@ namespace TicketSupport.Services.Catalog
         Task<string> CanAssignUserToTicket(string ticket_id);
         Task<List<Ticket>> GetNewTicketListAsync();
         Task<TicketAssignModel> GetLastUserTicketAssignModel(string ticket_id);
+        Task<ProfileViewModel> GetLastTicketUserSupportAsync(string ticket_id);
 
     }
 }
