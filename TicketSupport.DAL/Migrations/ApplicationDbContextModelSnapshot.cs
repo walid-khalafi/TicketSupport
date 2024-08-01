@@ -339,6 +339,10 @@ namespace TicketSupport.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("DepartmentServiceId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime?>("EditedAt")
                         .HasColumnType("datetime(6)");
 
@@ -367,6 +371,9 @@ namespace TicketSupport.DAL.Migrations
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("TicketPriority")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
