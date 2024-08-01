@@ -1,0 +1,227 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "ثبت تیکت جدید";
+    ViewData["Parent_Title"] = "تیکت ها";
+}
+
+
+<!-- Dropzone css -->
+<link href="~/vendors/dropzone/dropzone.css" rel="stylesheet" type="text/css" />
+
+
+<div class="col-md-12">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <label class="control-label">دپارتمان : </label>
+                            @Html.DropDownList("DepartmentId", null, "-- انتخاب دپارتمان --", new { @class = "form-control" })
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="control-label">نوع خدمت : </label>
+                            <select id="DepartmentServiceId" name="DepartmentServiceId" class="form-control">
+                                <option value=""> -- انتخاب -- </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="control-label">اولویت : </label>
+                            @Html.DropDownList("ticket_priority", Html.GetEnumSelectList<TicketPriority>(), "-- انتخاب  --", new { @class = "form-control select2" })
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <input id="Subject" name="Subject" class="form-control" placeholder="موضوع ...">
+                </div>
+
+                <div class="form-group">
+                    <textarea id="Body" dir="rtl" name="Body" class="textarea_editor form-control" placeholder="متن درخواست ..." rows="6"></textarea>
+                </div>
+
+                <h4><i class="ti-link"></i> ضمیمه ها</h4>
+                <form id="mydropZone" method="post" class="dropzone" style="height:100px">
+                    <div class="fallback">
+                        <input type="hidden" id="Id" name="Id" value="@Model.Id">
+                        <input name="file" type="file" multiple />
+                    </div>
+                </form>
+            </div>
+            <hr>
+            <a href="JavaScript:Send()" id="btn_send" class="btn btn-primary text-white"><i class="fa fa-envelope-o"></i> ارسال تیکت</a>
+            <a asp-controller="Ticket" asp-action="Index" class="btn btn-default"><i class="fa fa-times"></i> انصراف</a>
+        </div>
+    </div>
+
+</div>
+
+
+@section Scripts
+{
+    <!-- CKEditor -->
+    <script src="~/vendors/ckeditor/ckeditor.js"></script>
+
+    <!-- Dropzone Plugin JavaScript -->
+    <script src="~/vendors/dropzone/dropzone.js"></script>
+
+    <script type="text/javascript">
+
+
+        if ($('#Body').length) {
+            CKEDITOR.replace('Body', {
+                toolbarGroups: [{
+                    "name": "basicstyles",
+                    "groups": ["basicstyles"]
+                },
+                {
+                    "name": "links",
+                    "groups": ["links"]
+                },
+                {
+                    "name": "paragraph",
+                    "groups": ["list", "blocks"]
+                },
+                {
+                    "name": "insert",
+                    "groups": ["insert"]
+                }
+                ],
+                removeButtons: 'Underline,Strike,Subscript,Superscript,Anchor,Styles,Specialchar'
+            });
+        }
+
+
+        $("#DepartmentId").change(function () {
+            var data={
+                "id": $("#DepartmentId").val()
+            };
+            $("#DepartmentServiceId").empty();
+            $.ajax({
+                cache:false,
+                url:'@Url.Action("GetServiceList")',
+                type:'POST',
+                data:data,
+                dataType:'JSON',
+
+            success:function(data){
+
+                var $dropdown = $("#DepartmentServiceId");
+                    $.each(data, function() {
+                        $dropdown.append($("<option />").val(this.Id).text(this.Title));
+                    });
+            },
+            error:function(err){
+
+            }
+                });
+        });
+
+
+         var mydrop_zone =  $("#mydropZone").dropzone(
+            {
+            url: "@Url.Action("UploadFile")",
+            params:'file,key',
+            init: function() {
+                this.on("addedfile", function(file)
+                {
+
+                });
+                 this.on("sending", function(file, xhr, formData)
+                {
+                    var key = "@Model.Id";
+                    formData.append("key", key);
+
+                });
+                this.on("success", function(data)
+                {
+                   swal(
+                    "Success",
+                    "All Media Uploaded Successfully",
+                    "success");
+                });
+             },
+         });
+
+
+        function Send() {
+            var department_id = $("#DepartmentId").val();
+            var service_id = $("#DepartmentServiceId").val();
+            var ticket_priority = $("#ticket_priority").val();
+            var ticket_id = '@Model.Id';
+            var subject = $("#Subject").val();
+            var body = CKEDITOR.instances['Body'].getData();
+
+         if (department_id == "") {
+
+                                         swal(
+                            "خطا",
+                            "لطفا دپارتمان مورد نظر را انتخاب نمایید",
+                                             "error");
+
+             return false;
+
+         }
+
+        $("#btn_send").html("درحال ارسال ...");
+            $("#btn_send").attr('href', '#');
+
+
+        $.ajax({
+            cache: false,
+            url: '@Url.Action("Compose")',
+            type: "POST",
+            dataType: 'JSON',
+            data: {
+                Id: ticket_id,
+                DepartmentServiceId: service_id,
+                DepartmentId: department_id,
+                TicketPriority: ticket_priority,
+                Subject: subject,
+                Body: body
+            },
+            success: function (data) {
+
+                if (data == "true") {
+                    swal(
+                        "موفقیت",
+                        "تیکت با موفقیت در سیستم ذخیره شد",
+                        "success");
+                    window.location.href = '@Url.Action("Index")';
+                }
+                else {
+                    swal(
+                        "خطا",
+                        "لطفا اطلاعات مورد نیاز را تکمیل نمایید",
+                        "error");
+
+                    $("#btn_send").html("ارسال تیکت");
+                    $("#btn_send").attr('href','JavaScript:Send()');
+                 
+                }
+                return true;
+            },
+            error: function (err) {
+
+                swal(
+                    "خطا",
+                    "خطایی در ذخیره تیکت رخ داده است",
+                    "error");
+
+                $("#btn_send").html("ارسال تیکت");
+                    $("#btn_send").attr('href','JavaScript:Send()');
+            }
+        });
+
+
+
+        }
+    </script>
+}
