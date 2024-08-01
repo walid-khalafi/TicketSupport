@@ -1,0 +1,281 @@
+﻿@model IEnumerable<TicketSupport.DAL.Entities.Catalog.DepartmentService>
+@inject IProfileService _profile
+@{
+    ViewData["Title"] = $"خدمات دپارتمان {ViewData["department_title"].ToString()}";
+    ViewData["Parent_Title"] = "تیکت";
+}
+
+<!-- DataTable -->
+<link rel="stylesheet" href="~/vendors/dataTables/DataTables-1.13.6/css/jquery.dataTables.css" type="text/css">
+<link href="~/vendors/dataTables/Buttons-2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
+
+
+<style>
+    div.dataTables_filter {
+        float: right;
+    }
+
+    td, th {
+        text-align: center !important;
+        font-size: small !important;
+    }
+</style>
+
+<div class="col-md-12">
+    <div class="card">
+        <div class="card-body">
+
+            <table id="tbl_model" class="table" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Title)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Description)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.DefaultUserId)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CreatedBy)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CreatedAt)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.EditedBy)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.EditedAt)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.IPAddress)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var created_by = await _profile.GetUserProfileAsync(item.CreatedBy);
+                        var edited_by = await _profile.GetUserProfileAsync(item.EditedBy);
+                        var default_user = await _profile.GetUserProfileAsync(item.DefaultUserId);
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Title)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Description)
+                            </td>
+                            <td>
+                                @default_user.FullName
+                            </td>
+                            <td>
+                                @created_by.FullName
+                            </td>
+                            <td>
+                                @try
+                                {
+                                    @PersianDate.Standard.ConvertDate.ToFa(item.CreatedAt, "B")
+                                }
+                                catch (Exception ex)
+                                {
+                                    @ex.Message
+                                }
+                            </td>
+                            <td>
+                                @edited_by.FullName
+                            </td>
+                            <td>
+                                @try
+                                {
+                                    @PersianDate.Standard.ConvertDate.ToFa(item.EditedAt, "B")
+                                }
+                                catch (Exception ex)
+                                {
+                                    @ex.Message
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.IPAddress)
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-primary text-white" href='JavaScript:Edit("@item.Id","@item.Title","@item.Description")'><i class="fa fa-pencil"></i></a>
+                                <a class="btn btn-sm btn-danger text-white" href='JavaScript:Delete("@item.Id","@item.Title","@item.Description")'><i class="fa fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+<!--  Add  Modal -->
+<div class="modal fade" id="AddModal" tabindex="-1" role="dialog" aria-labelledby="branchModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">فرم ایجاد  خدمت </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="@Url.Action("Create","DepartmentService")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="DepartmentId" value="@ViewData["department_id"].ToString()" />
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>عنوان </label>
+                        <input type="text" name="Title" required class="form-control text-center" />
+                    </div>
+                    <div class="form-group">
+                        <label>توضیحات</label>
+                        <input type="text" name="Description" required class="form-control text-center" />
+                    </div>
+                    <div class="form-group">
+                        <label> کارشناس پیشفرض</label>
+                        @Html.DropDownList("DefaultUserId", null, "-- انتخاب کارشناس پیشفرض --", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="submit" class="btn btn-success">ذخیره</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--   Edit  Modal -->
+<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="branchModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">فرم ویرایش  خدمت </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="@Url.Action("Edit","DepartmentService")">
+                <input type="hidden" id="txtEditId" name="Id" value="" />
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="DepartmentId" value="@ViewData["department_id"].ToString()" />
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>عنوان خدمت</label>
+                        <input type="text" id="txtEditTitle" name="Title" required class="form-control text-center" />
+                    </div>
+                    <div class="form-group">
+                        <label>توضیحات</label>
+                        <input type="text" id="txtEditDescription" name="Description" required class="form-control text-center" />
+                    </div>
+                    <div class="form-group">
+                        <label>کارشناس پیشفرض </label>
+                        @Html.DropDownList("DefaultUserId", null, "-- انتخاب کارشناس پیشفرض --", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="submit" class="btn btn-success">ذخیره</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!--  Delete Modal -->
+<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="branchModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">فرم حذف خدمت </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="@Url.Action("Delete","DepartmentService")">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="txtDeleteId" name="Id" value="" />
+                <div class="modal-body">
+                    <h3 class="text-danger">آیا از حذف این خدمت اطمینان دارید ؟</h3>
+                    <div class="form-group">
+                        <label>عنوان خدمت </label>
+                        <input type="text" id="txtDeleteTitle" name="Title" readonly required class="form-control text-center" />
+                    </div>
+                    <div class="form-group">
+                        <label>توضیحات</label>
+                        <input type="text" id="txtDeleteDescription" name="Description" readonly required class="form-control text-center" />
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <!-- DataTable -->
+    <script src="~/vendors/dataTables/datatables.min.js"></script>
+    <script src="~/vendors/dataTables/DataTables-1.13.8/js/dataTables.bootstrap5.js"></script>
+    <script src="~/vendors/dataTables/Buttons-2.4.2/js/buttons.dataTables.min.js"></script>
+    <script src="~/vendors/dataTables/pdfmake-0.2.7/pdfmake.js"></script>
+
+    <script type="text/javascript">$(document).ready(function () {
+
+            var table_positons = $('#tbl_model').dataTable({
+                serverSide: false,
+                "iDisplayLength": 50,
+                "order": [0, "dsc"],
+                "processing": "true",
+                "scrollY": 400,
+                "scrollX": true,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        text: '+ افزودن  ',
+                        action: function (e, dt, node, config) {
+                            $("#AddModal").modal("toggle");
+                        }
+                    },
+                    'copyHtml5',
+                    'csvHtml5',
+
+                ],
+                "language": {
+                    "url": "/vendors/dataTables/Persian.json"
+                },
+            });
+        });
+
+
+        function Edit(id, title, description) {
+
+            $("#txtEditId").val(id);
+            $("#txtEditTitle").val(title);
+            $("#txtEditDescription").val(description);
+
+            $("#EditModal").modal("toggle");
+        }
+
+        function Delete(id, title, description) {
+
+            $("#txtDeleteId").val(id);
+            $("#txtDeleteTitle").val(title);
+            $("#txtDeleteDescription").val(description);
+
+            $("#DeleteModal").modal("toggle");
+
+        }</script>
+
+}
