@@ -1,0 +1,224 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+    ViewData["Title"] = "تیکت ها";
+
+}
+
+<!-- DataTable -->
+<link rel="stylesheet" href="~/vendors/dataTables/DataTables-1.13.6/css/jquery.dataTables.css" type="text/css">
+<link href="~/vendors/dataTables/Buttons-2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
+
+<style>
+
+
+    th, td {
+        text-align: right;
+        font-size: small !important;
+    }
+
+    tr:hover {
+        cursor: pointer;
+    }
+
+    .unread {
+        font-weight: bolder;
+        background-color: #ffe8e8
+    }
+
+    .input_search {
+        background-color: rgb(255, 252, 239);
+        border: 1px solid gray;
+        margin: 10px;
+        border-radius: 10px;
+    }
+</style>
+<div class="col-md-12">
+    <div class="card">
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table m-t-30 table-hover contact-list footable-loaded footable" style="width:100%" id="ticket_table">
+                    <thead>
+                        <tr>
+                            <th>ارسال کننده</th>
+                            <th>موضوع</th>
+                            <th>نوع خدمت</th>
+                            <th>وضعیت</th>
+                            <th>اولویت</th>
+                            <th>کارشناس</th>
+                            <th>تاریخ ثبت</th>
+                            <th>ضمیمه</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>ارسال کننده</th>
+                            <th>موضوع</th>
+                            <th>نوع خدمت</th>
+                            <th>وضعیت</th>
+                            <th>اولویت</th>
+                            <th>کارشناس</th>
+                            <th>تاریخ ثبت</th>
+                            <th>ضمیمه</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+                                window.location = $(this).data("href");
+                            });
+    });
+
+
+    $("#search").keyup(function () {
+
+        var filter = $(this).val();
+         $.ajax({
+                cache:false,
+                type:'Post',
+                dataType:"JSON",
+                data:{
+                    type: '@ViewData["ticket_type"].ToString()',
+                    filter: filter
+                },
+                url:'@Url.Action("Index","Ticket")',
+                success:function(data){
+
+                    refresTable(filter);
+
+                },
+                error:function(err){
+
+                }
+            });
+
+
+    });
+
+
+
+    function refresTable(filter){
+
+        $("#div_table").load("@Url.Action("Index","Ticket",new{type=ViewData["ticket_type"].ToString(),page=1 })&filter=" + filter + " #div_table", function (response, status, xhr) {
+            alert("Load was performed.");
+        });
+    }
+</script>
+
+@section Scripts{
+
+
+    <!-- DataTable -->
+    <script src="~/vendors/dataTables/datatables.min.js"></script>
+    <script src="~/vendors/dataTables/DataTables-1.13.8/js/dataTables.bootstrap5.js"></script>
+    <script src="~/vendors/dataTables/Buttons-2.4.2/js/buttons.dataTables.min.js"></script>
+    <script src="~/vendors/dataTables/pdfmake-0.2.7/pdfmake.js"></script>
+
+    <script>
+
+    $(document).ready(function () {
+
+        $('#ticket_table').dataTable({
+            serverSide: true,
+            "ajax": {
+                "url": "@Url.Action("LoadAjaxTickets", "Ticket")/@ViewData["ticket_type"].ToString()",
+                "type": "POST",
+                "datatype": "json",
+            },
+            "createdRow": function (row, data, dataIndex) {
+                $(row).attr('data-id', data.ticket_id);
+                $(row).attr('data-href', '@Url.Action("Details","Ticket")/' + data.ticket_id)
+                $(row).addClass('clickable-row');
+                $(row).css('text-align:right');
+
+            },
+            "columns": [
+
+                {
+                    data: null, "name":"fullname",render: function (data, type, row) {
+                        if (data.avatar != null ) {
+                            return ' <img src="' + data.avatar + '" alt="' + data.fullname + '" class="img-circle" /> <small>' + data.fullname + '</small>';
+                        } else {
+                            return ' <img src="' + window.location.origin + '/images/user-placeholder.png" alt="' + data.fullname + '" class="img-circle" /> <small>' + data.fullname + '</small>';
+                        }
+
+                    }
+                },
+                { "data": "subject", "name": "subject" },
+                { "data": "service_type", "name": "service_type" },
+                {
+                    data: null,"name":"status", render: function (data, type, row)
+                    {
+
+                        if (data.last_closed_status != "") {
+
+                            if (data.last_resolved_status != "") {
+                                return '<small class="label label-danger">' + data.last_closed_status + '</small> <small class="label label-success" > برطرف شده</small >';
+                            }
+
+                            return '<small class="label label-danger">' + data.last_closed_status + '</small>';
+
+                        } else if (data.last_resolved_status != "") {
+                            return '<small class="label label-success">برطرف شده</small>';
+                        }
+
+                        return '';
+
+                    }
+                },
+                {
+                    data: null, "name":"priority",render: function (data, type, row) {
+                            return '<small class="label ' + data.priority_css_class + '">' + data.priority+'</small>';
+                    }
+                },
+                { "data": "user_assigned", "name": "user_assigned" },
+                { "data": "created_at", "name": "created_at" },
+
+                {
+                    data: null, render: function (data, type, row)
+                    {
+
+                        if (data.have_attachment) {
+                            return '<i class="fa fa-paperclip"></i>';
+                        }
+                        return '';
+                    }
+                },
+
+            ],
+            "serverSide": "true",
+            "order": [6, "desc"],
+            "processing": "true",
+            "language": {
+                "url": "/vendors/dataTables/Persian.json"
+            },
+            "scrollY": 500,
+            "scrollX": true
+
+        });
+        $('.dataTables_filter input').addClass('form-control input_search');
+    });
+
+
+    $(document).on("click", ".clickable-row", function () {
+        window.location = $(this).data("href");
+
+    });
+
+    </script>
+
+
+
+}
+
