@@ -54,7 +54,7 @@ namespace TicketSupport.WEB.Controllers
             ViewData["department_title"] = department.Title;
 
             var departmentUsersSupport = await _ticketService.GetDeparmentUsersSupport(id);
-            ViewData["user_id"] = new SelectList(departmentUsersSupport, "user_id", "full_name");
+            ViewData["DefaultUserId"] = new SelectList(departmentUsersSupport, "user_id", "full_name");
 
             var model = await Task.FromResult(_context.DepartmentServices.Where(x => x.DepartmentId == id && x.IsDeleted ==false).ToList());
             if (model == null)
