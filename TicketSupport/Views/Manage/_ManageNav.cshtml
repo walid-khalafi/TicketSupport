@@ -1,0 +1,14 @@
+﻿@using  TicketSupport.WEB.Views.Manage
+@inject SignInManager<IdentityUser> SignInManager
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+<ul class="list-group">
+    <li class="@ManageNavPages.IndexNavClass(ViewContext) list-group-item"><i class="fa fa-info"></i> <a asp-action="Index">پروفایل کاربری</a></li>
+    <li class="@ManageNavPages.ChangePasswordNavClass(ViewContext) list-group-item"><i class="fa fa-key"></i> <a asp-action="ChangePassword">رمز عبور</a></li>
+    @if (hasExternalLogins)
+    {
+        <li class="@ManageNavPages.ExternalLoginsNavClass(ViewContext) list-group-item"><i class="fa fa-lock"></i> <a asp-action="ExternalLogins">نرم افزار های احراز هویت</a></li>
+    }
+    <li class="@ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext) list-group-item"><i class="fa fa-google"></i> <a asp-action="TwoFactorAuthentication">رمز عبور دو مرحله ای</a></li>
+</ul>

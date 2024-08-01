@@ -1,0 +1,159 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = " کاربران";
+    ViewData["Parent_Title"] = "مدیریت";
+}
+<!-- DataTable -->
+<link rel="stylesheet" href="~/vendors/DataTables/DataTables-1.10.20/css/dataTables.bootstrap4.css" type="text/css">
+
+<style>
+    th, td {
+        text-align: center
+    }
+
+    .input_search {
+        background-color: rgb(255, 252, 239);
+        border: 1px solid gray;
+        margin: 10px;
+        border-radius: 10px;
+    }
+</style>
+<div class="col-md-12">
+    <p>
+        <a asp-action="Create" class="btn btn-primary text-white"><i class="fa fa-plus"></i> افزودن کاربر</a>
+    </p>
+    <div class="card">
+        <div class="card-body">
+            <table id="table_users" class="table table-striped" width="100%">
+
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>دپارتمان</th>
+                        <th>نام و نام خانوادگی</th>
+                        <th>نام کاربری</th>
+                        <th>سطح دسترسی</th>
+                        <th>رمز عبور دو مرحله ای</th>
+                        <th>شماره تماس</th>
+                        <th>ایمیل</th>
+                        <th>عملیات</th>
+
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>دپارتمان</th>
+                        <th>نام و نام خانوادگی</th>
+                        <th>نام کاربری</th>
+                        <th>سطح دسترسی</th>
+                        <th>رمز عبور دو مرحله ای</th>
+                        <th>شماره تماس</th>
+                        <th>ایمیل</th>
+                        <th>عملیات</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <!-- DataTable -->
+    <script src="~/vendors/DataTables/DataTables-1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="~/vendors/DataTables/DataTables-1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/vendors/DataTables/DataTables-1.10.20/js/dataTables.responsive.min.js"></script>
+
+}
+<script>
+    $(document).ready(function () {
+        $('#table_users').dataTable({
+            serverSide: true,
+            "ajax": {
+                "url": "@Url.Action("LoadAjaxUsers", "Users")",
+                "type": "POST",
+                "datatype": "json",
+            },
+            "columns": [
+                {
+                    data: null, render: function (data, type, row) {
+                        if (data.avatar != "") {
+                            return ' <img src="' + data.avatar + '" alt="' + data.full_name + '" class="rounded-circle" style="width:30px;">';
+                        }
+                        else {
+                            return '<img src="' + window.location.origin + '/assets/media/image/logo-sm.png" alt="' + data.full_name + '" class="rounded-circle" style="width:30px;">';
+                        }
+                    }
+                },
+                { "data": "departmentId", "name": "departmentId" },
+                {
+                    data: null, render: function (data, type, row) {
+                        return data.firstName + " " + data.lastName;
+                    }
+                },
+                { "data": "username", "name": "username" },
+                {
+                    data: null, render: function (data, type, row) {
+                        if (data.role == "Client") {
+                            return '<label class="badge badge-primary">کاربر</label>';
+                        }
+                        else {
+                            return '<label class="badge badge-info">' + data.role + '</label>';
+                        }
+                    }
+                },
+               
+                {
+                    data: null, render: function (data, type, row) {
+                        if (data.TwoFactorEnabled) {
+                            return '<label class="badge badge-success"><i class="fa fa-lock"></i>فعال</label>';
+                        } else {
+                            return '<label class="badge badge-danger"><i class="fa fa-lock"></i>غیرفعال</label>';
+                        }
+                        return '';
+                    }
+                },
+                { "data": "phonenumber", "name": "phonenumber" },
+                { "data": "email", "name": "email" },
+                {
+                    data: null, render: function (data, type, row)
+                    {
+                        return '<div class="btn-group"><a data-toggle="tooltip" data-placement="top" title="" data-original-title="ویرایش کاربر"  href="@Url.Action("Edit", "Users")/' + data.id + '" data-toggle="tooltip" data-original-title="ویرایش" class="btn  btn-primary btn-md  text-white"><i class="ti-pencil"></i></a><a href ="@Url.Action("ResetUserPass", "Users")?id=' + data.id  + '" data-toggle="tooltip" data-original-title="ویرایش" class="btn btn-primary  btn-md text-white" > <i class="ti-key"></i></a><a href ="@Url.Action("Delete", "Users")?id=' + data.id  + '" data-toggle="tooltip" data-original-title="حذف" class="btn btn-danger  btn-md text-white" > <i class="ti-trash"></i></a></div>';
+                    }
+
+                }
+
+            ],
+
+            "serverSide": "true",
+            "order": [0, "asc"],
+            "processing": "true",
+           
+            "oLanguage": {
+                "sProcessing": '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">درحال پردازش...</span>',
+                "sLengthMenu": "نمایش محتویات _MENU_",
+                "sZeroRecords": "موردی یافت نشد",
+                "sInfo": "نمایش _START_ تا _END_ از مجموع _TOTAL_ مورد",
+                "sInfoEmpty": "تهی",
+                "sInfoFiltered": "(فیلتر شده از مجموع _MAX_ مورد)",
+                "sInfoPostFix": "",
+                "sSearch": "نام و نام خانوادگی:",
+                "sUrl": "",
+                "oPaginate": {
+                    "sFirst": "ابتدا",
+                    "sPrevious": "قبلی",
+                    "sNext": "بعدی",
+                    "sLast": "انتها"
+
+                }
+            },
+            "scrollY": 400,
+            "scrollX": true
+
+        });
+    });
+</script>

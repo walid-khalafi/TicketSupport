@@ -1,0 +1,70 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment _env
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject IProfileService profileService
+@{
+    Layout = "_Layout.cshtml";
+    var user = await UserManager.GetUserAsync(User);
+    var roles = await UserManager.GetRolesAsync(user);
+    var profile = await profileService.GetUserProfileAsync(user.Id);
+}
+<div class="col-md-12">
+    <div class="card card-body overflow-hidden" data-backround-image="../assets/media/image/profile-bg.png">
+        <div class="p-3 d-lg-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <div>
+                    <figure class="avatar avatar-xl mr-3">
+                        @if (!string.IsNullOrWhiteSpace(profile.Avatar))
+                        {
+                            <img id="user_avatar" src="@profile.Avatar" class="rounded-circle" alt="@profile.FullName">
+                        }
+                        else
+                        {
+                            <img id="user_avatar" src="~/assets/media/image/avatar.jpg" class="rounded-circle" alt="@profile.FullName">
+                        }
+
+
+                    </figure>
+                </div>
+                <div class="text-white">
+                    <h3 class="line-height-30 m-b-10">
+                        @profile.FullName
+
+                    </h3>
+                    <p> <span>@profile.Email</span></p>
+                    <p class="mb-0 opacity-8">
+                        @foreach (var role in roles)
+                        {
+                            <span> @role </span>
+                        }
+
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+<!-- .row -->
+
+
+<div class="col-md-4">
+    <div class="card">
+
+        <div class="card-body">
+
+            @await Html.PartialAsync("_ManageNav")
+        </div>
+    </div>
+</div>
+<div class="col-md-8">
+
+    @RenderBody()
+</div>
+
+<!-- /.row -->

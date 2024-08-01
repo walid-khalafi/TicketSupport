@@ -1,0 +1,27 @@
+﻿@using    TicketSupport.WEB.Views.Manage
+@model GenerateRecoveryCodesViewModel
+@{
+    ViewData["Title"] = "کد های ریکاوری";
+    ViewData["Parent_Title"] = "مدیریت پروفایل";
+    ViewData.AddActivePage(ManageNavPages.TwoFactorAuthentication);
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+
+<h4>@ViewData["Title"]</h4>
+<div class="alert alert-warning" role="alert">
+    <p>
+        <span class="glyphicon glyphicon-warning-sign"></span>
+        <strong>کدهای صادر شده را در جای امن نگهداری کنید</strong>
+    </p>
+    <p>
+        در صورتی که دستگاه خود را گم کرده باشید و کد های ریکاوری را نداشته باشید دسترسی شما به این اشتراک از بین خواهد رفت
+    </p>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        @for (var row = 0; row < Model.RecoveryCodes.Count(); row += 2)
+        {
+            <code>@Model.RecoveryCodes[row]</code><text>&nbsp;</text><code>@Model.RecoveryCodes[row + 1]</code><br />
+        }
+    </div>
+</div>

@@ -1,0 +1,27 @@
+﻿@using  TicketSupport.WEB.Views.Manage
+@{
+    ViewData["Title"] = "غیر فعالسازی رمز عبور دوم";
+    ViewData["Parent_Title"] = "مدیریت پروفایل";
+    ViewData.AddActivePage(ManageNavPages.TwoFactorAuthentication);
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="alert alert-warning" role="alert">
+    <p>
+        <span class="glyphicon glyphicon-warning-sign"></span>
+        <strong>این کار فقط رمز عبور دوم را غیر فعال خواهد کرد</strong>
+    </p>
+    <p>
+        غیر فعالسازی رمز عبور دوم کلید استفاده شده در نرم فزار authenticator را تغییر نخواهد داد.
+        برای تغییر کلید در نرم افزار شما باید بر روی لینک <a asp-action="ResetAuthenticatorWarning">بازنشانی کلید</a> کلیک نمایید
+
+    </p>
+</div>
+
+<div>
+    <form asp-action="Disable2fa" method="post" class="form-group">
+        <button class="btn btn-danger" type="submit">غیر فعالسازی رمز عبور دو مرحله ای</button>
+    </form>
+</div>

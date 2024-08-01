@@ -1,0 +1,49 @@
+﻿@using TicketSupport.WEB.Views.Manage
+@model TwoFactorAuthenticationViewModel
+@{
+    ViewData["Title"] = "احراز هویت دو مرحله ای";
+    ViewData["Parent_Title"] = "مدیریت پروفایل";
+    ViewData.AddActivePage(ManageNavPages.TwoFactorAuthentication);
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+
+@if (Model.Is2faEnabled)
+{
+    if (Model.RecoveryCodesLeft == 0)
+    {
+        <div class="alert alert-danger">
+            <strong>شما هنوز کد ریکاوری ندارید.</strong>
+            <p>
+                شما باید <a asp-action="GenerateRecoveryCodes">کد ریکاوری را تولید کنید</a> سپس قادر خواهید بود با کد ریکاوری وارد سامانه شوید
+            </p>
+        </div>
+    }
+    else if (Model.RecoveryCodesLeft == 1)
+    {
+        <div class="alert alert-danger">
+            <strong>شما یک کد ریکاوری را از دست داده اید.</strong>
+            <p>می توانید<a asp-action="GenerateRecoveryCodes">کد ریکاوری جدید را تولید کنید</a>.</p>
+        </div>
+    }
+    else if (Model.RecoveryCodesLeft <= 3)
+    {
+        <div class="alert alert-warning">
+            <strong>شما باید @Model.RecoveryCodesLeft کد ریکاوری را تغییر دهید.</strong>
+            <p>شما باید یک <a asp-action="GenerateRecoveryCodes">کد ریکاوری جدید تولید کنید</a>.</p>
+        </div>
+    }
+
+    <a asp-action="Disable2faWarning" class="btn btn-default">غیر فعالسازی رمز عبور دو مرحله ای</a>
+    <a asp-action="GenerateRecoveryCodes" class="btn btn-default">بازنشانی کد ریکاوری</a>
+}
+
+@if (!Model.HasAuthenticator)
+{
+    <a asp-action="EnableAuthenticator" class="btn btn-default">افزودن نرم افزار احراز هویت</a>
+}
+else
+{
+    <a asp-action="EnableAuthenticator" class="btn btn-default">تنظیمات نرم افزار احراز هویت</a>
+    <a asp-action="ResetAuthenticatorWarning" class="btn btn-default">بازنشانی کلید نرم افزار</a>
+}
+

@@ -1,0 +1,72 @@
+﻿@using   TicketSupport.WEB.Views.Manage
+@model EnableAuthenticatorViewModel
+@{
+    ViewData["Title"] = "فعالسازی رمز عبور دوم";
+    ViewData["Parent_Title"] = "مدیریت پروفایل";
+    ViewData.AddActivePage(ManageNavPages.TwoFactorAuthentication);
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+
+
+<div class="card">
+    <div class="card-header">
+        <span>@ViewData["Title"]</span>
+    </div>
+    <div class="card-body">
+        <p>برای استفاده از نرم افزار های احراز هویت مراحل زیر را انجام دهید</p>
+        <ol class="list">
+            <li>
+                <p>
+                    دانلود نرم افزار two-factor authenticator برای دستگاه های Microsoft
+
+                    <a href="https://go.microsoft.com/fwlink/?Linkid=825071">Windows Phone</a>,
+                    <a href="https://go.microsoft.com/fwlink/?Linkid=825072">Android</a> and
+                    <a href="https://go.microsoft.com/fwlink/?Linkid=825073">iOS</a> or
+                    Google Authenticator برای
+                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en">اندروید</a> و
+                    <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">iOS</a>.
+                </p>
+            </li>
+            <li>
+                <p>
+                    بارکد را اسکن کنید یا کد <kbd>@Model.SharedKey</kbd> را در نرم افزار two factor authenticator وارد نمایید . نیاز به رعایت فاصله ها نیست
+                </p>
+                <!-- <div class="alert alert-info">To enable QR code generation please read our <a href="https://go.microsoft.com/fwlink/?Linkid=852423">documentation</a>.</div> -->
+                <div id="qrCode"></div>
+                <div id="qrCodeData" data-url="@Html.Raw(Model.AuthenticatorUri)"></div>
+            </li>
+            <li>
+                <p>
+                    در مرحله اول شما نیاز دارید که بارکد را اسکن کرده یا کلید تولید شده را در نرم افزار وارد نمایید .
+                    نرم افزار برای شما یک کد یکتا تولید میکند کد تولید شده را در فرم زیر وارد نمونده و سپس تاببد را بزنید
+
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form method="post">
+                            <div class="form-group">
+                                <label asp-for="Code" class="control-label">تایید کد</label>
+                                <input asp-for="Code" class="form-control" autocomplete="off" />
+                                <span asp-validation-for="Code" class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary">تایید</button>
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        </form>
+                    </div>
+                </div>
+            </li>
+        </ol>
+    </div>
+
+</div>
+
+
+<script type="text/javascript" src="~/lib/qrcode/qrcode.js"></script>
+<script type="text/javascript">
+        new QRCode(document.getElementById("qrCode"),
+            {
+                text: "@Html.Raw(Model.AuthenticatorUri)",
+                width: 150,
+                height: 150
+            });
+</script>

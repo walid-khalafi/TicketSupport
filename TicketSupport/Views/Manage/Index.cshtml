@@ -1,0 +1,89 @@
+﻿@using   TicketSupport.WEB.Views.Manage
+@model IndexViewModel
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@{
+    ViewData["Title"] = "ویرایش پروفایل";
+    ViewData["Parent_Title"] = "مدیریت پروفایل";
+    ViewData.AddActivePage(ManageNavPages.Index);
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var user = await UserManager.GetUserAsync(User);
+    var roles = await UserManager.GetRolesAsync(user);
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">ویرایش پروفایل</h6>
+                <form method="post" action="@Url.Action("EditProfile")">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <input asp-for="Avatar" type="hidden" />
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+
+                    <div class="form-group">
+                        <label asp-for="Username"></label>
+                        <input asp-for="Username" class="form-control" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="FirstName"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LastName"></label>
+                        <input asp-for="LastName" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Email"></label>
+                        @if (Model.IsEmailConfirmed)
+                        {
+                            <div class="input-group">
+                                <input asp-for="Email" class="form-control" />
+                                <span class="input-group-addon" aria-hidden="true"><span class="glyphicon glyphicon-ok text-success"></span></span>
+                            </div>
+                        }
+                        else
+                        {
+                            <input asp-for="Email" class="form-control" />
+                            <button asp-action="SendVerificationEmail" class="btn btn-link">ارسال تاییدیه ایمیل</button>
+                        }
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Phonenumber"></label>
+                        <input asp-for="Phonenumber" class="form-control" />
+                        <span asp-validation-for="Phonenumber" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-rounded">ذخیره</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">آپلود تصویر</h6>
+                <input type="file" accept="*.png" onchange="Upload_thumbnail(this)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>function Upload_thumbnail(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#Avatar').attr('value', e.target.result);
+                $('#user_avatar').attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }</script>

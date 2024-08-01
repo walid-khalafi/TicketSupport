@@ -32,7 +32,23 @@ namespace TicketSupport.Services.Users
                 var profile = await Task.FromResult(_context.Profiles.Find(user.Id));
                 if (profile == null)
                 {
-                    _context.Profiles.Add(new DAL.Entities.User.Profile() { Id = user.Id, FirstName = string.Empty, LastName = string.Empty, ThemeColor = "light", Avatar = img64base, NavigationSize = "normal-navigation" });
+                    _context.Profiles.Add(new DAL.Entities.User.Profile()
+                    {
+                        Id = user.Id,
+                        FirstName = string.Empty,
+                        LastName = string.Empty,
+                        ThemeColor = "light",
+                        Avatar = img64base,
+                        NavigationSize = "normal-navigation",
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = user.Id,
+                        DepartmentId = Guid.Empty.ToString(),
+                        EditedAt = DateTime.Now,
+                        EditedBy = user.Id,
+                        IPAddress = string.Empty,
+                        DeletedAt = DateTime.Now,
+                        IsDeleted = false
+                    });
                     await _context.SaveChangesAsync();
                     return true;
                 }
@@ -42,6 +58,26 @@ namespace TicketSupport.Services.Users
             }
             return false;
 
+        }
+
+        public async Task<bool> ChangeUserDepartmentAsync(string id, string department_id)
+        {
+            var profile = await _context.Profiles.FindAsync(id);
+            if (profile !=null)
+            {
+                profile.DepartmentId = department_id;
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            return false;
+         
         }
 
         public async Task<bool> ChangeUserFullNameAsync(string id, string first_name, string last_name)
@@ -56,7 +92,23 @@ namespace TicketSupport.Services.Users
                 var profile = await Task.FromResult(_context.Profiles.Find(user.Id));
                 if (profile == null)
                 {
-                    _context.Profiles.Add(new DAL.Entities.User.Profile() { Id = user.Id, FirstName = first_name, LastName = last_name, ThemeColor = "light", Avatar = "", NavigationSize = "normal-navigation" });
+                    _context.Profiles.Add(new DAL.Entities.User.Profile()
+                    {
+                        Id = user.Id,
+                        FirstName = first_name,
+                        LastName = last_name,
+                        ThemeColor = "light",
+                        Avatar = string.Empty,
+                        NavigationSize = "normal-navigation",
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = user.Id,
+                        DepartmentId = Guid.Empty.ToString(),
+                        EditedAt = DateTime.Now,
+                        EditedBy = user.Id,
+                        IPAddress = string.Empty,
+                        DeletedAt = DateTime.Now,
+                        IsDeleted = false
+                    });
                 }
                 else
                 {

@@ -211,13 +211,23 @@ namespace TicketSupport.Services.Catalog
 
             model.CreatedAt = DateTime.Now;
             model.CreatedBy = _user_id;
-           
-
+            model.IPAddress = _ipAddress;
+            model.EditedAt = DateTime.Now;
+            model.EditedBy = _user_id;
+            model.IsDeleted = false;
+            model.DeletedAt = DateTime.Now;
+            model.Assign = string.Empty;
+            model.Resolved = string.Empty;
+            model.Resolved = string.Empty;
+            model.IsDeleted = false;
+            model.Attachments = string.Empty;
+            model.Closed = string.Empty;
+            model.Seen = string.Empty;
+            model.Replays = string.Empty;
             _context.Tickets.Add(model);
             try
             {
-        
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
 
             }
