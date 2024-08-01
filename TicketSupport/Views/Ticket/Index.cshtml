@@ -3,7 +3,8 @@
 *@
 @{
 
-    ViewData["Title"] = "تیکت ها";
+    ViewData["Title"] = ViewData["ticket_type"].ToString();
+    ViewData["Parent_Title"] = "تیکت ها";
 
 }
 
@@ -40,7 +41,7 @@
         <div class="card-body">
 
             <div class="table-responsive">
-                <table class="table m-t-30 table-hover contact-list footable-loaded footable" style="width:100%" id="ticket_table">
+                <table class="table " style="width:100%" id="ticket_table">
                     <thead>
                         <tr>
                             <th>ارسال کننده</th>
@@ -121,8 +122,8 @@
 
     <!-- DataTable -->
     <script src="~/vendors/dataTables/datatables.min.js"></script>
-    <script src="~/vendors/dataTables/DataTables-1.13.8/js/dataTables.bootstrap5.js"></script>
-    <script src="~/vendors/dataTables/Buttons-2.4.2/js/buttons.dataTables.min.js"></script>
+    <script src="~/vendors/dataTables/DataTables-1.13.6/js/dataTables.bootstrap4.js"></script>
+    <script src="~/vendors/dataTables/Buttons-2.4.2/js/buttons.bootstrap.js"></script>
     <script src="~/vendors/dataTables/pdfmake-0.2.7/pdfmake.js"></script>
 
     <script>
@@ -148,9 +149,9 @@
                 {
                     data: null, "name":"fullname",render: function (data, type, row) {
                         if (data.avatar != null ) {
-                            return ' <img src="' + data.avatar + '" alt="' + data.fullname + '" class="img-circle" /> <small>' + data.fullname + '</small>';
+                            return ' <img src="' + data.avatar + '" alt="' + data.fullname + '" class="rounded-circle" style="width:30px;" /> <small>' + data.fullname + '</small>';
                         } else {
-                            return ' <img src="' + window.location.origin + '/images/user-placeholder.png" alt="' + data.fullname + '" class="img-circle" /> <small>' + data.fullname + '</small>';
+                            return ' <img src="' + window.location.origin + '/images/user-placeholder.png" alt="' + data.fullname + '" class="rounded-circle" style="width:30px;" /> <small>' + data.fullname + '</small>';
                         }
 
                     }
@@ -200,6 +201,17 @@
             "serverSide": "true",
             "order": [6, "desc"],
             "processing": "true",
+            buttons: [
+                {
+                    text: '+ افزودن  ',
+                    action: function (e, dt, node, config) {
+                        $("#AddModal").modal("toggle");
+                    }
+                },
+                'copyHtml5',
+                'csvHtml5',
+
+            ],
             "language": {
                 "url": "/vendors/dataTables/Persian.json"
             },
