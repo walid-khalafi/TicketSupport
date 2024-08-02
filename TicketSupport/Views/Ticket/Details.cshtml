@@ -10,8 +10,10 @@
     ViewData["Title"] = "نمایش تیکت";
     ViewData["Parent_Title"] = "تیکت ها";
     var user = await UserManager.GetUserAsync(User);
+    int count = 0;
 }
-
+<!-- Lightbox -->
+<link rel="stylesheet" href="~/vendors/lightbox/magnific-popup.css" type="text/css">
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-8">
@@ -54,8 +56,11 @@
                     </p>
                     <p style="text-align:justify">@Html.Raw(Model.Body)</p>
 
+
+
                 </div>
-                <div  class="card-footer">
+                <div class="card-footer">
+
                     <div id="div_control">
                         @if (Model.Department.DepartmentAdminId == user.Id || Model.AssignedUser.user_id == user.Id)
                         {
@@ -80,28 +85,78 @@
                             <a href="JavaScript:FixTicket('@Model.Id')" data-toggle="tooltip" data-original-title="رفع شده" class="btn btn-success  btn-sm m-r-5 pull-right"><i class="fa fa-check text-white"></i></a>
                         }
                     </div>
-                    
+
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span><i class="fa fa-files mr-2"></i> ضمیمه ها</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+
+                        @foreach (var file in Model.Attachments)
+                        {
+                            count++;
+
+                            <div class="text-center col-md-3" style="margin-bottom:20px">
+
+                                @switch (file.ContentType)
+                                {
+                                    case ".pdf":
+                                        <a target="_blank" href="data:application/pdf;base64,@file.Base64String" data-title="@file.Name"><i class="fa fa-5x fa-file-pdf-o text-danger"></i><br /><span style="margin:10px">@file.Name</span></a>
+                                        break;
+                                    case ".png":
+                                        <div class="card hide-show-toggler">
+                                            <a href="data:image/png;base64,@file.Base64String" class="image-popup-gallery-item">
+                                                <img src="data:image/png;base64,@file.Base64String" class="card-img-top" alt="@file.Name">
+                                                <span style="margin:10px">@file.Name </span>
+                                            </a>
+                                        </div>
+                                        break;
+                                    case ".jpg":
+                                        <div class="card hide-show-toggler">
+                                            <a href="data:image/png;base64,@file.Base64String" class="image-popup-gallery-item">
+                                                <img src="data:image/png;base64,@file.Base64String" class="card-img-top" alt="@file.Name">
+                                                <span style="margin:10px">@file.Name </span>
+                                            </a>
+                                        </div>
+
+                                        break;
+                                    default:
+                                        <div class="card hide-show-toggler">
+                                            <a href="data:image/png;base64,@file.Base64String" class="image-popup-gallery-item">
+                                                <img src="data:image/png;base64,@file.Base64String" class="card-img-top" alt="@file.Name">
+                                                <span style="margin:10px">@file.Name </span>
+                                            </a>
+                                        </div>
+                                        break;
+                                }
+                            </div>
+                        }
+
+                    </div>
                 </div>
             </div>
             @if (Model.CanAssignUserToTicket)
             {
-            <div class="card">
-                <div class="card-header">
-                    <strong><i class="fa fa-users mr-2"></i>اختصاص کارشناس</strong>
-                </div>
-                <div class="card-body">
-                    <div class="row" id="assign_user">
+                <div class="card">
+                    <div class="card-header">
+                        <strong><i class="fa fa-users mr-2"></i>اختصاص کارشناس</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="assign_user">
 
-                        <select id="drp_users" class="form-control">
-                            <option value="@Guid.Empty">-- انتخاب کارشناس --</option>
-                            @foreach (var item in Model.TicketUsersSupport)
-                            {
-                                <option value="@item.user_id">@item.full_name</option>
-                            }
-                        </select>
+                            <select id="drp_users" class="form-control">
+                                <option value="@Guid.Empty">-- انتخاب کارشناس --</option>
+                                @foreach (var item in Model.TicketUsersSupport)
+                                {
+                                    <option value="@item.user_id">@item.full_name</option>
+                                }
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
             }
         </div>
         <div class="col-md-4">
@@ -139,7 +194,7 @@
                                 {
                                     var user1 = await _profileService.GetUserProfileAsync(item.user_id);
                                     <div class="message-item  @(item.is_me == true ? "outgoing-message":"")">
-                                     
+
                                         <p>@item.text</p>
                                         @try
                                         {
@@ -173,6 +228,11 @@
 </div>
 
 @section Scripts{
+
+    <!-- Lightbox -->
+    <script src="~/vendors/lightbox/jquery.magnific-popup.min.js"></script>
+    <script src="~/assets/js/examples/lightbox.js"></script>
+
     <script type="text/javascript">
 
      function CloseTicket(id){
