@@ -12,16 +12,10 @@
 
     string controller = this.ViewContext.RouteData.Values["controller"].ToString();
     string action = $"{this.ViewContext.RouteData.Values["controller"].ToString()}{this.ViewContext.RouteData.Values["action"].ToString()}";
-    if (ViewData["PAGEID"] != null)
+    if (ViewData["ticket_type"] != null)
     {
-        action += ViewData["PAGEID"].ToString();
+        action += ViewData["ticket_type"].ToString();
     }
-    string chart_source = string.Empty;
-    if (ViewData["ChartSource"] != null)
-    {
-        chart_source = ViewData["ChartSource"].ToString();
-    }
-
     var user = await UserManager.GetUserAsync(User);
     var roles = await UserManager.GetRolesAsync(user);
     var profile = await profileService.GetUserProfileAsync(user.Id);
@@ -295,10 +289,10 @@
                     <a href="#">  تیکت</a>
                     <ul>
                         <li><a class="@(action == "TicketCompose" ? "active" : "")" asp-controller="Ticket" asp-action="Compose"><span class="fa fa-pencil m-r-10"></span> ثبت تیکت</a></li>
-                        <li><a class="@(action == "TicketIndex" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="inbox"><span class="fa fa-envelope m-r-10"></span> دریافتی</a></li>
-                        <li><a class="@(action == "TicketIndex" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="outbox"><span class="fa fa-plane m-r-10"></span> ارسالی </a></li>
-                        <li><a class="@(action == "TicketIndex" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="closed"><span class="fa fa-circle text-danger m-r-10"></span> بسته شده </a></li>
-                        <li><a class="@(action == "TicketIndex" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="solved"><span class="fa fa-circle text-success m-r-10"></span> برطرف شده </a></li>
+                        <li><a class="@(action == "TicketIndexinbox" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="inbox"><span class="fa fa-envelope m-r-10"></span> دریافتی</a></li>
+                        <li><a class="@(action == "TicketIndexoutbox" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="outbox"><span class="fa fa-plane m-r-10"></span> ارسالی </a></li>
+                        <li><a class="@(action == "TicketIndexclosed" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="closed"><span class="fa fa-circle text-danger m-r-10"></span> بسته شده </a></li>
+                        <li><a class="@(action == "TicketIndexsolved" ? "active" : "")" asp-controller="Ticket" asp-action="Index" asp-route-type="solved"><span class="fa fa-circle text-success m-r-10"></span> برطرف شده </a></li>
                         @if (new_tickets != null)
                         {
                             <li class="navigation-divider">تیکت های جدید @new_tickets.Count </li>
@@ -327,7 +321,7 @@
                         }
                     </ul>
                 </li>
-                <li class="@(controller == "Department" ? "open" : "")">
+                <li class="@(controller == "Department" ||controller == "DepartmentService" ? "open" : "")">
                     <a href="#">  تنظیمات</a>
                     <ul>
                         <li><a class="@(action == "DepartmentIndex" ? "active" : "")" asp-controller="Department" asp-action="Index"><span class="fa fa-building m-r-10"></span>  دپارتمان ها</a></li>
