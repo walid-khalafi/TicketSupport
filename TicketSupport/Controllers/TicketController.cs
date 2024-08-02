@@ -25,15 +25,17 @@ namespace TicketSupport.WEB.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IProfileService _profileService;
         private readonly ITicketService _ticketService;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private string _user_id;
         private string _ipAddress;
 
 
-        public TicketController(ApplicationDbContext context,ITicketService ticketService, IHttpContextAccessor httpContextAccessor, IProfileService profileService)
+        public TicketController(ApplicationDbContext context,ITicketService ticketService, IHttpContextAccessor httpContextAccessor, IProfileService profileService, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
             _ticketService = ticketService;
             _httpContextAccessor = httpContextAccessor;
+            _hostingEnvironment = hostingEnvironment;
             _profileService = profileService;
             _ipAddress = _httpContextAccessor.HttpContext.Request.HttpContext.Connection.RemoteIpAddress.ToString();
             _user_id = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -431,6 +433,73 @@ namespace TicketSupport.WEB.Controllers
 
 
             return Json(result);
+        }
+
+        [HttpPost]
+        [RequestSizeLimit(1000000)] // Limit to 1 MB
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> UploadFile(List<IFormFile> file, string key)
+        {
+            if (ModelState.IsValid)
+            {
+                if (file != null)
+                {
+                    long size = file.Sum(f => f.Length);
+
+                    string user_ticket_attachments_folder_path = "";
+                    try
+                    {
+                        user_ticket_attachments_folder_path = Path.Combine(this._hostingEnvironment.ContentRootPath, "Attachments", _user_id, key);
+
+                        // create current project  directory if not exist
+                        if (!Directory.Exists(user_ticket_attachments_folder_path))
+                        {
+                            Directory.CreateDirectory(user_ticket_attachments_folder_path);
+                        }
+
+
+                        foreach (var formFile in file)
+                        {
+                            if (formFile.Length > 0)
+                            {
+                                var file_path = Path.Combine(user_ticket_attachments_folder_path, formFile.FileName);
+                                string[] allowed_types = {
+                            "image/png",
+                            "image/jpeg",
+                            "image/gif",
+                            "application/vnd.ms-excel",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "application/msword",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            "application/vnd.ms-powerpoint",
+                            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                            "text/plain",
+                            "application/pdf"
+                        };
+                                var type_allowed = allowed_types.FirstOrDefault(x => x.Contains(formFile.ContentType));
+                                if (!string.IsNullOrWhiteSpace(type_allowed))
+                                {
+                                    using (var stream = new FileStream(file_path, FileMode.Create))
+                                    {
+
+                                        await formFile.CopyToAsync(stream);
+                                    }
+                                }
+                            }
+                        }
+
+                        return await Task.FromResult(Json("true"));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                }
+            }
+          
+
+            return await Task.FromResult(Json("false"));
         }
 
     }
