@@ -24,7 +24,7 @@ namespace TicketSupport.Services.Catalog
         Task<List<UserListModel>> GetDeparmentUsersSupport(string deparment_id);
         Task<bool> AssignUserToDeparmentService(string user_id, string service_id, string deparment_id);
         Task<string> AssignUserToTicketAsync(string user_id, string ticket_id);
-        Task<string> CanAssignUserToTicket(string ticket_id);
+        Task<bool> CanAssignUserToTicket(string ticket_id);
         Task<List<Ticket>> GetNewTicketListAsync();
         Task<TicketAssignModel> GetLastUserTicketAssignModel(string ticket_id);
         Task<ProfileViewModel> GetLastTicketUserSupportAsync(string ticket_id);
