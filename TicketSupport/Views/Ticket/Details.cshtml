@@ -1,13 +1,15 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model TicketSupport.DAL.Entities.Catalog.Ticket
+@model TicketSupport.WEB.Models.TicketViewModel.DetailsViewModel
 @inject ITicketService _TicketService
 @inject IProfileService _profileService
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "نمایش تیکت";
     ViewData["Parent_Title"] = "تیکت ها";
-  
+    var user = await UserManager.GetUserAsync(User);
 }
 
 <div class="col-md-12">
@@ -15,15 +17,107 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <strong class="text-muted">@Model.Subject</strong>
+                    <strong class="pull-left text-muted">
+                        <i class="fa fa-folder mr-2"></i>
+                        @Model.DepartmentService.Title
+                    </strong>
+                    <span class="pull-right">
+                        @try
+                        {
+                            <span>@PersianDate.Standard.ConvertDate.ToFa(Model.CreatedAt, "F")</span>
+                        }
+                        catch (System.Exception ex)
+                        {
+                        }
+                    </span>
                 </div>
                 <div class="card-body">
-                   
-                    <p>@Html.Raw(Model.Body)</p>
+                    <div class="row m-b-2">
+                        <a class="col-md-1 mr-2" href="#">
+                            @if (!string.IsNullOrWhiteSpace(Model.CreatedBy.Avatar))
+                            {
+                                <img src="@Model.CreatedBy.Avatar" class="rounded-circle" style="width:50px;" alt="@Model.CreatedBy.FullName" />
+                            }
+                            else
+                            {
+                                <img src="~/images/user-placeholder.png" class="rounded-circle" style="width:50px;" alt="@Model.CreatedBy.FullName" />
+                            }
+
+                        </a>
+                        <div class="col-md-10">
+                            <strong class="text-danger m-0">@Model.CreatedBy.FullName</strong><br />
+                            <small class="text-muted">ایمیل: @Model.CreatedBy.Email</small>
+                        </div>
+                    </div>
+                    <p>
+                        <strong class="">@Model.Subject</strong>
+                    </p>
+                    <p style="text-align:justify">@Html.Raw(Model.Body)</p>
+
+                </div>
+                <div class="card-footer">
+                    @if (Model.Department.DepartmentAdminId == user.Id || Model.AssignedUser.user_id == user.Id)
+                    {
+                        if (Model.IsClosed == "yes" ? true : false)
+                        {
+                            <a href="JavaScript:OpenTicket('@Model.Id')" data-toggle="tooltip" data-original-title="باز کردن تیکت" class="btn btn-info btn-sm m-r-5 pull-left"><i class="fa fa-folder text-white"></i></a>
+                        }
+                        else
+                        {
+                            <a href="JavaScript:CloseTicket('@Model.Id')" data-toggle="tooltip" data-original-title="بستن تیکت" class="btn btn-danger btn-sm m-r-5 pull-left"><i class="fa fa-lock text-white"></i></a>
+                        }
+                    }
+
+
+                    @if ((Model.IsResolved == "yes" ? true : false))
+                    {
+                        <a href="JavaScript:UnFixTicket('@Model.Id')" data-toggle="tooltip" data-original-title="رفع نشده" class="btn btn-danger btn-sm m-r-5 pull-right"><i class="fa fa-thumbs-o-down text-white"></i></a>
+
+                    }
+                    else
+                    {
+                        <a href="JavaScript:FixTicket('@Model.Id')" data-toggle="tooltip" data-original-title="رفع شده" class="btn btn-success  btn-sm m-r-5 pull-right"><i class="fa fa-check text-white"></i></a>
+                    }
                 </div>
             </div>
-
-
+            <table class="table table-hover table-striped primary-table">
+                <thead>
+                    <tr>
+                        <th width="50px"></th>
+                        <th>کارشناس فنی</th>
+                        <th>تاریخ اختصاص</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td> <img src="@(!string.IsNullOrWhiteSpace(Model.AssignedUser.avatar) ? Model.AssignedUser.avatar:"../../assets/media/image/avatar.jpg")" alt="user" class="rounded-circle" style="width:50px;"></td>
+                        <td style="vertical-align:middle">@Model.AssignedUser.full_name</td>
+                        <td>
+                            @try
+                            {
+                                <spam>@PersianDate.Standard.ConvertDate.ToFa(Model.AssignedUser.date, "f")</spam>
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            @if (Model.CanAssignUserToTicket)
+            {
+            <div class="row" id="assign_user">
+                <label class="control-label">اختصاص کارشناس</label>
+                <select class="form-control">
+                    <option value="@Guid.Empty">-- انتخاب کارشناس --</option>
+                    @foreach(var item in Model.TicketUsersSupport)
+                    {
+                        <option id="@item.user_id">@item.full_name</option>
+                    }
+                </select>
+            </div>
+            }
         </div>
         <div class="col-md-4">
             <div class="card chat-app-wrapper">
@@ -43,11 +137,11 @@
                                 <h6 class="mb-1 primary-font line-height-18">بری الن</h6>
                                 <span class="small text-success">در حال نوشتن ...</span>
                             </div>
-                           
+
                         </div>
                         <div class="chat-body-messages">
                             <div class="message-items">
-                            
+
 
                                 <div class="message-item">
                                     لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت
@@ -66,7 +160,7 @@
                                     <button type="button" class="ml-3 btn btn-primary btn-floating">
                                         <i class="fa fa-send"></i>
                                     </button>
-                         
+
                                 </div>
                             </form>
                         </div>
