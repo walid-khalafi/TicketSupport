@@ -406,6 +406,17 @@ namespace TicketSupport.WEB.Controllers
             return Json(result);
         }
 
+        [HttpPost]
+        public async Task<JsonResult> CloseTicket(string ticket_id, string isClosed)
+        {
+            return Json(await _ticketService.StateClosedTicketAsync(ticket_id, bool.Parse(isClosed)));
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ResolveTicket(string ticket_id, bool isResolved)
+        {
+            return Json(await _ticketService.StateResolvedTicketAsync(ticket_id, isResolved));
+        }
 
     }
 }

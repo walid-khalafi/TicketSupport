@@ -55,29 +55,32 @@
                     <p style="text-align:justify">@Html.Raw(Model.Body)</p>
 
                 </div>
-                <div class="card-footer">
-                    @if (Model.Department.DepartmentAdminId == user.Id || Model.AssignedUser.user_id == user.Id)
-                    {
-                        if (Model.IsClosed == "yes" ? true : false)
+                <div  class="card-footer">
+                    <div id="div_control">
+                        @if (Model.Department.DepartmentAdminId == user.Id || Model.AssignedUser.user_id == user.Id)
                         {
-                            <a href="JavaScript:OpenTicket('@Model.Id')" data-toggle="tooltip" data-original-title="باز کردن تیکت" class="btn btn-info btn-sm m-r-5 pull-left"><i class="fa fa-folder text-white"></i></a>
+                            if (Model.IsClosed == "yes" ? true : false)
+                            {
+                                <a href="JavaScript:OpenTicket('@Model.Id')" data-toggle="tooltip" data-original-title="باز کردن تیکت" class="btn btn-info btn-sm m-r-5 pull-left"><i class="fa fa-folder text-white"></i></a>
+                            }
+                            else
+                            {
+                                <a href="JavaScript:CloseTicket('@Model.Id')" data-toggle="tooltip" data-original-title="بستن تیکت" class="btn btn-danger btn-sm m-r-5 pull-left"><i class="fa fa-lock text-white"></i></a>
+                            }
+                        }
+
+
+                        @if ((Model.IsResolved == "yes" ? true : false))
+                        {
+                            <a href="JavaScript:UnFixTicket('@Model.Id')" data-toggle="tooltip" data-original-title="رفع نشده" class="btn btn-danger btn-sm m-r-5 pull-right"><i class="fa fa-thumbs-o-down text-white"></i></a>
+
                         }
                         else
                         {
-                            <a href="JavaScript:CloseTicket('@Model.Id')" data-toggle="tooltip" data-original-title="بستن تیکت" class="btn btn-danger btn-sm m-r-5 pull-left"><i class="fa fa-lock text-white"></i></a>
+                            <a href="JavaScript:FixTicket('@Model.Id')" data-toggle="tooltip" data-original-title="رفع شده" class="btn btn-success  btn-sm m-r-5 pull-right"><i class="fa fa-check text-white"></i></a>
                         }
-                    }
-
-
-                    @if ((Model.IsResolved == "yes" ? true : false))
-                    {
-                        <a href="JavaScript:UnFixTicket('@Model.Id')" data-toggle="tooltip" data-original-title="رفع نشده" class="btn btn-danger btn-sm m-r-5 pull-right"><i class="fa fa-thumbs-o-down text-white"></i></a>
-
-                    }
-                    else
-                    {
-                        <a href="JavaScript:FixTicket('@Model.Id')" data-toggle="tooltip" data-original-title="رفع شده" class="btn btn-success  btn-sm m-r-5 pull-right"><i class="fa fa-check text-white"></i></a>
-                    }
+                    </div>
+                    
                 </div>
             </div>
             @if (Model.CanAssignUserToTicket)
@@ -173,123 +176,50 @@
     <script type="text/javascript">
 
      function CloseTicket(id){
-
             if(id ==""){
-                swal(
-                    "خطا",
-                    "لطفا یک تیکت را انتخاب نمایید",
-                    "error");
                     return false;
             }
-            swal({
-            title: "هشدار!",
-            text: "آیا از بستن این تیکت اطمینان دارید",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "بستن تیکت",
-            cancelButtonText: "انصراف",
-            closeOnConfirm: false,
-            closeOnCancel: false
-        }, function(isConfirm){
-            if (isConfirm) {
 
-                $.ajax({
-                cache:false,
-                url:'@Url.Action("CloseTicket")',
-                type:'POST',
-                dataType:'JSON',
-                data :{
-                    "ticket_id":id,
-                    "isClosed":"True"
-                },
-                success:function(data){
-                    if  (data == "true"){
-                        swal.close();
+         $.ajax({
+             cache: false,
+             url: '@Url.Action("CloseTicket")',
+             type: 'POST',
+             dataType: 'JSON',
+             data: {
+                 "ticket_id": id,
+                 "isClosed": "True"
+             },
+             success: function (data) {
+                 $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+             },
+             error: function (err) {
 
-                    $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
-                    $("#div_answer").load('@Url.Action("Details","Ticket",new { id = Model.Id}) #div_answer');
-                        return true;
-                    }else{
-                    swal(
-                        "خطا",
-                        "خطایی در ارسال درخواست به سرور رخ داده است",
-                        "error");
-                    }
-                },
-                error:function(err){
-                    swal(
-                    "خطا",
-                    "خطایی در ارسال درخواست به سرور رخ داده است",
-                    "error");
-                    return false;
-                }
-            })
-
-            } else {
-                swal("انصراف", "عملیات لغو شد :)", "error");
-            }
-        });
+             }
+         });
 
         }
 
          function OpenTicket(id){
 
             if(id ==""){
-                swal(
-                    "خطا",
-                    "لطفا یک تیکت را انتخاب نمایید",
-                    "error");
                     return false;
             }
-            swal({
-            title: "هشدار!",
-            text: "آیا از باز کردن این تیکت اطمینان دارید",
-            type: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "باز کردن تیکت",
-            cancelButtonText: "انصراف",
-            closeOnConfirm: false,
-            closeOnCancel: false
-        }, function(isConfirm){
-            if (isConfirm) {
+             $.ajax({
+                 cache: false,
+                 url: '@Url.Action("CloseTicket")',
+                 type: 'POST',
+                 dataType: 'JSON',
+                 data: {
+                     "ticket_id": id,
+                     "isClosed": "False"
+                 },
+                 success: function (data) {
+                     $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+                 },
+                 error: function (err) {
 
-                $.ajax({
-                cache:false,
-                url:'@Url.Action("CloseTicket")',
-                type:'POST',
-                dataType:'JSON',
-                data :{
-                    "ticket_id":id,
-                    "isClosed":"False"
-                },
-                success:function(data){
-                    if  (data == "true"){
-                        swal.close();
-                    $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
-                             $("#div_answer").load('@Url.Action("Details","Ticket",new { id = Model.Id}) #div_answer');
-                        return true;
-                    }else{
-                    swal(
-                        "خطا",
-                        "خطایی در ارسال درخواست به سرور رخ داده است",
-                        "error");
-                    }
-                },
-                error:function(err){
-                    swal(
-                    "خطا",
-                    "خطایی در ارسال درخواست به سرور رخ داده است",
-                    "error");
-                    return false;
-                }
-            })
-
-            } else {
-                swal("انصراف", "عملیات لغو شد :)", "error");
-            }
-        });
+                 }
+             });
 
         }
 
@@ -298,121 +228,48 @@
         function FixTicket(id){
 
             if(id ==""){
-                swal(
-                    "خطا",
-                    "لطفا یک تیکت را انتخاب نمایید",
-                    "error");
+
                     return false;
             }
-            swal({
-            title: "هشدار!",
-            text: " مشکل این تیکت رفع  شده است ؟",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "رفع شده",
-            cancelButtonText: "انصراف",
-            closeOnConfirm: false,
-            closeOnCancel: false
-        }, function(isConfirm){
-            if (isConfirm) {
+            $.ajax({
+                cache: false,
+                url: '@Url.Action("ResolveTicket")',
+                type: 'POST',
+                dataType: 'JSON',
+                data: {
+                    "ticket_id": id,
+                    "isResolved": "True"
+                },
+                success: function (data) {
+                    $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+                },
+                error: function (err) {
 
-                $.ajax({
-                cache:false,
-                url:'@Url.Action("ResolveTicket")',
-                type:'POST',
-                dataType:'JSON',
-                data :{
-                    "ticket_id":id,
-                    "isResolved":"True"
-                },
-                success:function(data){
-                    if  (data == "true"){
-                        swal.close();
-                        $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
-                        return true;
-                    }else{
-                    swal(
-                        "خطا",
-                        "خطایی در ارسال درخواست به سرور رخ داده است",
-                        "error");
-                    }
-                },
-                error:function(err){
-                    swal(
-                    "خطا",
-                    "خطایی در ارسال درخواست به سرور رخ داده است",
-                    "error");
-                    return false;
                 }
-            })
-
-            } else {
-                swal("انصراف", "عملیات لغو شد :)", "error");
-            }
-        });
-
+            });
         }
 
          function UnFixTicket(id){
 
             if(id ==""){
-                swal(
-                    "خطا",
-                    "لطفا یک تیکت را انتخاب نمایید",
-                    "error");
                     return false;
             }
-            swal({
-            title: "هشدار!",
-            text: "آیا مشکل تیکت رفع نشده است",
-            type: "info",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "رفع نشده",
-            cancelButtonText: "انصراف",
-            closeOnConfirm: false,
-            closeOnCancel: false
-        }, function(isConfirm){
-            if (isConfirm) {
+             $.ajax({
+                 cache: false,
+                 url: '@Url.Action("ResolveTicket")',
+                 type: 'POST',
+                 dataType: 'JSON',
+                 data: {
+                     "ticket_id": id,
+                     "isResolved": "False"
+                 },
+                 success: function (data) {
+                     $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+                 },
+                 error: function (err) {
 
-                $.ajax({
-                cache:false,
-                url:'@Url.Action("ResolveTicket")',
-                type:'POST',
-                dataType:'JSON',
-                data :{
-                    "ticket_id":id,
-                    "isResolved":"False"
-                },
-                success:function(data){
-                    if (data == "true") {
-                        swal.close();
-
-
-                    $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
-                        return true;
-                    }else{
-                    swal(
-                        "خطا",
-                        "خطایی در ارسال درخواست به سرور رخ داده است",
-                        "error");
-                    }
-                },
-                error:function(err){
-                    swal(
-                    "خطا",
-                    "خطایی در ارسال درخواست به سرور رخ داده است",
-                    "error");
-                    return false;
-                }
-            })
-
-            } else {
-                swal("انصراف", "عملیات لغو شد :)", "error");
-            }
-        });
-
+                 }
+             });
         }
 
 
@@ -434,7 +291,7 @@
         success:function(data){
 
 
-                             
+
             $(".chat-body-header").load('@Url.Action("Details","Ticket",new { id = Model.Id}) .chat-body-header');
 
 
