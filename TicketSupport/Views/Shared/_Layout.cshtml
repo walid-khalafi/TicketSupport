@@ -303,36 +303,26 @@
                         {
                             <li class="navigation-divider">تیکت های جدید @new_tickets.Count </li>
 
-                            <li>
-
-                                <div class="list-group mail-list m-t-20">
-                                    @foreach (var item in new_tickets.OrderByDescending(x => x.CreatedAt).ToList().Take(4))
-                                    {
-                                        var item_user = await profileService.GetUserProfileAsync(@item.CreatedBy);
-                                        <a href="~/Ticket/Details/@item.Id" class="list-group-item" style="text-align:justify">
-                                            @if (item_user.Avatar != null && item_user.Avatar != "")
+                            @foreach (var item in new_tickets.OrderByDescending(x => x.CreatedAt).ToList().Take(4))
+                                {
+                                    var item_user = await profileService.GetUserProfileAsync(@item.CreatedBy);
+                                    <li>
+                                        <a href="~/Ticket/Details/@item.Id" style="text-align:justify"><i class="fa fa-envelope text-danger m-r-10"></i>
+                                            @if (item.Subject.Length > 30)
                                             {
-                                                <img src="@item_user.Avatar" alt="@item_user.FullName" class="img-circle" style="width:30px" />
-                                            }
-                                            else
-                                            {
-                                                <img src="~/images/user-placeholder.png" alt="@item_user.FullName" class="img-circle" style="width:30px;" />
-                                            }
-                                            <strong>@item_user.FullName</strong><br />
-                                            @if (item.Subject.Length > 50)
-                                            {
-                                                @item.Subject.Substring(0, 50) <span> ...</span>
+                                                @item.Subject.Substring(0, 30) <span> ...</span>
                                             }
                                             else
                                             {
                                                 @item.Subject
                                             }
-
-                                            <span class="label label-rouded label-info pull-right">@ViewBag.ticket_count</span>
                                         </a>
-                                    }
-                                </div>
-                            </li>
+
+                                    </li>   
+                                        
+                            }
+                                
+                         
 
                         }
                     </ul>
