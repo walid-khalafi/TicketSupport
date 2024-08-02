@@ -418,6 +418,21 @@ namespace TicketSupport.WEB.Controllers
             return Json(await _ticketService.StateResolvedTicketAsync(ticket_id, isResolved));
         }
 
+        [HttpPost]
+        public async Task<JsonResult> SendAnswer(ReplayTicketModel model, string ticket_id)
+        {
+            var ticket = await _ticketService.GetTicketAsync(ticket_id);
+            if (ticket == null)
+            {
+                return Json("false");
+            }
+
+            var result = await _ticketService.AnswerToTicketAsync(ticket_id, model);
+
+
+            return Json(result);
+        }
+
     }
 }
 

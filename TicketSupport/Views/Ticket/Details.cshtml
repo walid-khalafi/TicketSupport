@@ -139,11 +139,11 @@
                                 {
                                     var user1 = await _profileService.GetUserProfileAsync(item.user_id);
                                     <div class="message-item  @(item.is_me == true ? "outgoing-message":"")">
-                                        <h4>@user1.FullName</h4>
+                                     
                                         <p>@item.text</p>
                                         @try
                                         {
-                                            <small class="message-item-date text-muted">@PersianDate.Standard.ConvertDate.ToFa(item.created_at, "F")</small>
+                                            <small class="message-item-date text-muted">@PersianDate.Standard.ConvertDate.ToFa(item.created_at, "hh:MM")</small>
                                         }
                                         catch (System.Exception)
                                         {
@@ -154,11 +154,11 @@
                         </div>
                         <div class="chat-body-footer">
                             <form class="d-flex align-items-center">
-                                <input type="text" class="form-control" placeholder="پیام ...">
+                                <input id="txt_msg" type="text" class="form-control" placeholder="پیام ...">
                                 <div class="d-flex">
-                                    <button type="button" class="ml-3 btn btn-primary btn-floating">
+                                    <a href="JavaScript:SendAnswer()" type="button" class="ml-3 btn btn-primary text-white btn-floating">
                                         <i class="fa fa-send"></i>
-                                    </button>
+                                    </a>
 
                                 </div>
                             </form>
@@ -302,6 +302,43 @@
     });
         });
 
+
+
+        function SendAnswer(){
+            var text = $("#txt_msg").val();
+            if (text == ""){
+                return false;
+            }
+            $.ajax({
+                cache:false,
+                type:'Post',
+                dataType:"JSON",
+                data:{
+                    text :text,
+                    ticket_id:'@Model.Id'
+                },
+                url:'@Url.Action("SendAnswer")',
+                success:function(data){
+
+                    refreshReplays();
+
+                },
+                error:function(err){
+
+                }
+            });
+
+
+        }
+
+
+        function refreshReplays(){
+
+            $(".chat-app").load("@Url.Action("Details","Ticket",new{id=@Model.Id}) .chat-app", function( response, status, xhr ) {
+                $("#txt_msg").val("");
+                $('.chat-body-messages').animate({ scrollTop: $('.chat-body-messages')[0].scrollHeight}, "slow");
+            });
+        }
 
     </script>
 }
