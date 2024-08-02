@@ -169,26 +169,23 @@ namespace TicketSupport.Services.Catalog
             return "true";
         }
 
-        public async Task<string> CanAssignUserToTicket(string ticket_id)
+        public async Task<bool> CanAssignUserToTicket(string ticket_id)
         {
             if (string.IsNullOrWhiteSpace(ticket_id))
             {
-                return "false";
+                return false;
             }
             var ticket = await GetTicketAsync(ticket_id);
             if (ticket == null)
             {
-                return "false";
+                return false;
             }
             var department = await _context.Departments.FindAsync(ticket.DepartmentId);
             if (department == null)
             {
-                return "false";
+                return false;
             }
-          
-     
             bool is_drp_admin = false;
-          
             
             if (_user_id == department.DepartmentAdminId)
             {
@@ -196,10 +193,9 @@ namespace TicketSupport.Services.Catalog
             }
             if (!is_drp_admin)
             {
-                return "false";
+                return false;
             }
-
-            return "true";
+            return true;
         }
 
         public async Task<bool> CreateTicketAsync(Ticket model)
