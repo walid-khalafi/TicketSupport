@@ -342,6 +342,7 @@ namespace TicketSupport.WEB.Controllers
             {
                 model.DepartmentService = departmentService;
             }
+            model.Id = ticket.Id;
             model.Subject = ticket.Subject;
             model.Body = ticket.Body;
             model.IsClosed = await _ticketService.IsTicketClosedAsync(ticket.Id);
@@ -391,6 +392,18 @@ namespace TicketSupport.WEB.Controllers
                 Console.WriteLine(ex.ToString());
             }
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> AssignUserToTicketAsync(string user_id, string ticket_id)
+        {
+            var result = await _ticketService.AssignUserToTicketAsync(user_id, ticket_id);
+
+            // await _hubContext.Clients.All.SendAsync("displayNotification", "");
+
+           // var email_result = await SendEmailNewTicketAsync(user_id, "شما یک تیکت جدید دارید", Url.Action("Details", "Ticket", new { id = ticket_id }, Request.Scheme));
+            //await _hubContext.Clients.User(user_id).SendAsync("displayNotification", "");
+            return Json(result);
         }
 
 

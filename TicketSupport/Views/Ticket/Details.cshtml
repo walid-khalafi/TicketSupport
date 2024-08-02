@@ -80,40 +80,15 @@
                     }
                 </div>
             </div>
-            <table class="table table-hover table-striped primary-table">
-                <thead>
-                    <tr>
-                        <th width="50px"></th>
-                        <th>کارشناس فنی</th>
-                        <th>تاریخ اختصاص</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td> <img src="@(!string.IsNullOrWhiteSpace(Model.AssignedUser.avatar) ? Model.AssignedUser.avatar:"../../assets/media/image/avatar.jpg")" alt="user" class="rounded-circle" style="width:50px;"></td>
-                        <td style="vertical-align:middle">@Model.AssignedUser.full_name</td>
-                        <td>
-                            @try
-                            {
-                                <spam>@PersianDate.Standard.ConvertDate.ToFa(Model.AssignedUser.date, "f")</spam>
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
-                            }
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
             @if (Model.CanAssignUserToTicket)
             {
             <div class="row" id="assign_user">
                 <label class="control-label">اختصاص کارشناس</label>
-                <select class="form-control">
+                <select id="drp_users" class="form-control">
                     <option value="@Guid.Empty">-- انتخاب کارشناس --</option>
                     @foreach(var item in Model.TicketUsersSupport)
                     {
-                        <option id="@item.user_id">@item.full_name</option>
+                        <option value="@item.user_id">@item.full_name</option>
                     }
                 </select>
             </div>
@@ -130,27 +105,41 @@
                             </a>
                             <div>
                                 <figure class="avatar avatar-sm m-r-10">
-                                    <img src="~/assets/media/image/avatar.jpg" class="rounded-circle" alt="image">
+                                    <img src="@(!string.IsNullOrWhiteSpace(Model.AssignedUser.avatar) ? Model.AssignedUser.avatar:"../../assets/media/image/avatar.jpg")" alt="@Model.AssignedUser.full_name" class="rounded-circle mr-1">
                                 </figure>
                             </div>
                             <div>
-                                <h6 class="mb-1 primary-font line-height-18">بری الن</h6>
-                                <span class="small text-success">در حال نوشتن ...</span>
+                                <h6 class="mb-1 primary-font line-height-18">کارشناس : @Model.AssignedUser.full_name</h6>
+                                <span class="small text-success">
+                                    @try
+                                    {
+                                        <spam>@PersianDate.Standard.ConvertDate.ToFa(Model.AssignedUser.date, "f")</spam>
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex.ToString());
+                                    }
+                                </span>
                             </div>
 
                         </div>
                         <div class="chat-body-messages">
                             <div class="message-items">
-
-
-                                <div class="message-item">
-                                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت
-                                </div>
-                                <div class="message-item outgoing-message">
-                                    لورم ایپسوم متن ساختگی
-                                    <small class="message-item-date text-muted">22.30</small>
-                                </div>
-                                <div class="message-item">&bull; &bull; &bull;</div>
+                                @foreach (var item in Model.Replays)
+                                {
+                                    var user1 = await _profileService.GetUserProfileAsync(item.user_id);
+                                    <div class="message-item  @(item.is_me == true ? "outgoing-message":"")">
+                                        <h4>@user1.FullName</h4>
+                                        <p>@item.text</p>
+                                        @try
+                                        {
+                                            <small class="message-item-date text-muted">@PersianDate.Standard.ConvertDate.ToFa(item.created_at, "F")</small>
+                                        }
+                                        catch (System.Exception)
+                                        {
+                                        }
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div class="chat-body-footer">
@@ -172,3 +161,283 @@
     </div>
 
 </div>
+
+@section Scripts{
+    <script type="text/javascript">
+
+     function CloseTicket(id){
+
+            if(id ==""){
+                swal(
+                    "خطا",
+                    "لطفا یک تیکت را انتخاب نمایید",
+                    "error");
+                    return false;
+            }
+            swal({
+            title: "هشدار!",
+            text: "آیا از بستن این تیکت اطمینان دارید",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "بستن تیکت",
+            cancelButtonText: "انصراف",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        }, function(isConfirm){
+            if (isConfirm) {
+
+                $.ajax({
+                cache:false,
+                url:'@Url.Action("CloseTicket")',
+                type:'POST',
+                dataType:'JSON',
+                data :{
+                    "ticket_id":id,
+                    "isClosed":"True"
+                },
+                success:function(data){
+                    if  (data == "true"){
+                        swal.close();
+
+                    $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+                    $("#div_answer").load('@Url.Action("Details","Ticket",new { id = Model.Id}) #div_answer');
+                        return true;
+                    }else{
+                    swal(
+                        "خطا",
+                        "خطایی در ارسال درخواست به سرور رخ داده است",
+                        "error");
+                    }
+                },
+                error:function(err){
+                    swal(
+                    "خطا",
+                    "خطایی در ارسال درخواست به سرور رخ داده است",
+                    "error");
+                    return false;
+                }
+            })
+
+            } else {
+                swal("انصراف", "عملیات لغو شد :)", "error");
+            }
+        });
+
+        }
+
+         function OpenTicket(id){
+
+            if(id ==""){
+                swal(
+                    "خطا",
+                    "لطفا یک تیکت را انتخاب نمایید",
+                    "error");
+                    return false;
+            }
+            swal({
+            title: "هشدار!",
+            text: "آیا از باز کردن این تیکت اطمینان دارید",
+            type: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "باز کردن تیکت",
+            cancelButtonText: "انصراف",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        }, function(isConfirm){
+            if (isConfirm) {
+
+                $.ajax({
+                cache:false,
+                url:'@Url.Action("CloseTicket")',
+                type:'POST',
+                dataType:'JSON',
+                data :{
+                    "ticket_id":id,
+                    "isClosed":"False"
+                },
+                success:function(data){
+                    if  (data == "true"){
+                        swal.close();
+                    $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+                             $("#div_answer").load('@Url.Action("Details","Ticket",new { id = Model.Id}) #div_answer');
+                        return true;
+                    }else{
+                    swal(
+                        "خطا",
+                        "خطایی در ارسال درخواست به سرور رخ داده است",
+                        "error");
+                    }
+                },
+                error:function(err){
+                    swal(
+                    "خطا",
+                    "خطایی در ارسال درخواست به سرور رخ داده است",
+                    "error");
+                    return false;
+                }
+            })
+
+            } else {
+                swal("انصراف", "عملیات لغو شد :)", "error");
+            }
+        });
+
+        }
+
+
+
+        function FixTicket(id){
+
+            if(id ==""){
+                swal(
+                    "خطا",
+                    "لطفا یک تیکت را انتخاب نمایید",
+                    "error");
+                    return false;
+            }
+            swal({
+            title: "هشدار!",
+            text: " مشکل این تیکت رفع  شده است ؟",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "رفع شده",
+            cancelButtonText: "انصراف",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        }, function(isConfirm){
+            if (isConfirm) {
+
+                $.ajax({
+                cache:false,
+                url:'@Url.Action("ResolveTicket")',
+                type:'POST',
+                dataType:'JSON',
+                data :{
+                    "ticket_id":id,
+                    "isResolved":"True"
+                },
+                success:function(data){
+                    if  (data == "true"){
+                        swal.close();
+                        $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+                        return true;
+                    }else{
+                    swal(
+                        "خطا",
+                        "خطایی در ارسال درخواست به سرور رخ داده است",
+                        "error");
+                    }
+                },
+                error:function(err){
+                    swal(
+                    "خطا",
+                    "خطایی در ارسال درخواست به سرور رخ داده است",
+                    "error");
+                    return false;
+                }
+            })
+
+            } else {
+                swal("انصراف", "عملیات لغو شد :)", "error");
+            }
+        });
+
+        }
+
+         function UnFixTicket(id){
+
+            if(id ==""){
+                swal(
+                    "خطا",
+                    "لطفا یک تیکت را انتخاب نمایید",
+                    "error");
+                    return false;
+            }
+            swal({
+            title: "هشدار!",
+            text: "آیا مشکل تیکت رفع نشده است",
+            type: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "رفع نشده",
+            cancelButtonText: "انصراف",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        }, function(isConfirm){
+            if (isConfirm) {
+
+                $.ajax({
+                cache:false,
+                url:'@Url.Action("ResolveTicket")',
+                type:'POST',
+                dataType:'JSON',
+                data :{
+                    "ticket_id":id,
+                    "isResolved":"False"
+                },
+                success:function(data){
+                    if (data == "true") {
+                        swal.close();
+
+
+                    $("#div_control").load('@Url.Action("Details","Ticket",new{id=Model.Id}) #div_control');
+                        return true;
+                    }else{
+                    swal(
+                        "خطا",
+                        "خطایی در ارسال درخواست به سرور رخ داده است",
+                        "error");
+                    }
+                },
+                error:function(err){
+                    swal(
+                    "خطا",
+                    "خطایی در ارسال درخواست به سرور رخ داده است",
+                    "error");
+                    return false;
+                }
+            })
+
+            } else {
+                swal("انصراف", "عملیات لغو شد :)", "error");
+            }
+        });
+
+        }
+
+
+
+
+    $("#drp_users").change(function() {
+
+        var data={
+            "ticket_id":"@Model.Id",
+            "user_id": $('#drp_users').find(":selected").val()
+        };
+        $.ajax({
+            cache:false,
+            url:'@Url.Action("AssignUserToTicket")',
+            type:'POST',
+            data:data,
+            dataType:'JSON',
+
+        success:function(data){
+
+
+                             
+            $(".chat-body-header").load('@Url.Action("Details","Ticket",new { id = Model.Id}) .chat-body-header');
+
+
+        },
+        error:function(err){
+
+        }
+    });
+        });
+
+
+    </script>
+}

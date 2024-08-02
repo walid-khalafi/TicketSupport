@@ -166,7 +166,42 @@ namespace TicketSupport.Services.Catalog
                 return "false";
             }
 
-            return "true";
+            List<TicketAssignModel> list = new List<TicketAssignModel>();
+            TicketAssignModel ticketAssign = new TicketAssignModel()
+            { assigned_by = _user_id, assigned_date = DateTime.Now, user_id = user_id };
+
+            if (string.IsNullOrWhiteSpace(ticket.Assign))
+            {
+                try
+                {
+                    list.Add(ticketAssign);
+                    ticket.Assign = Newtonsoft.Json.JsonConvert.SerializeObject(list);
+                    await _context.SaveChangesAsync();
+                    return "true";
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex.ToString());
+                }
+
+            }
+            else
+            {
+                try
+                {
+                    list = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TicketAssignModel>>(ticket.Assign);
+                    list.Add(ticketAssign);
+                    ticket.Assign = Newtonsoft.Json.JsonConvert.SerializeObject(list);
+                    await _context.SaveChangesAsync();
+                    return "true";
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex.ToString());
+                }
+            }
+            return "false";
+
         }
 
         public async Task<bool> CanAssignUserToTicket(string ticket_id)
