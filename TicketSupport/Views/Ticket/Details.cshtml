@@ -82,15 +82,22 @@
             </div>
             @if (Model.CanAssignUserToTicket)
             {
-            <div class="row" id="assign_user">
-                <label class="control-label">اختصاص کارشناس</label>
-                <select id="drp_users" class="form-control">
-                    <option value="@Guid.Empty">-- انتخاب کارشناس --</option>
-                    @foreach(var item in Model.TicketUsersSupport)
-                    {
-                        <option value="@item.user_id">@item.full_name</option>
-                    }
-                </select>
+            <div class="card">
+                <div class="card-header">
+                    <strong><i class="fa fa-users mr-2"></i>اختصاص کارشناس</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="assign_user">
+
+                        <select id="drp_users" class="form-control">
+                            <option value="@Guid.Empty">-- انتخاب کارشناس --</option>
+                            @foreach (var item in Model.TicketUsersSupport)
+                            {
+                                <option value="@item.user_id">@item.full_name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
             </div>
             }
         </div>
