@@ -329,6 +329,7 @@ namespace TicketSupport.WEB.Controllers
                 AssignedUser = new UserListModel(),
             };
 
+
             var ticket = await _ticketService.GetTicketAsync(id);
             if (ticket == null)
             {
@@ -353,6 +354,12 @@ namespace TicketSupport.WEB.Controllers
             model.TicketUsersSupport.AddRange(await _ticketService.GetTicketUsersSupport(id));
             model.CreatedAt = ticket.CreatedAt;
             model.CreatedBy = await _profileService.GetUserProfileAsync(ticket.CreatedBy);
+            var attachments = await GetTicketAttachments(ticket.Id);
+            if (attachments !=null)
+            {
+                model.Attachments.AddRange(attachments);
+            }
+
             await _ticketService.StateSeenTicketAsync(id);
 
             try
@@ -401,10 +408,6 @@ namespace TicketSupport.WEB.Controllers
         {
             var result = await _ticketService.AssignUserToTicketAsync(user_id, ticket_id);
 
-            // await _hubContext.Clients.All.SendAsync("displayNotification", "");
-
-           // var email_result = await SendEmailNewTicketAsync(user_id, "شما یک تیکت جدید دارید", Url.Action("Details", "Ticket", new { id = ticket_id }, Request.Scheme));
-            //await _hubContext.Clients.User(user_id).SendAsync("displayNotification", "");
             return Json(result);
         }
 
@@ -467,13 +470,6 @@ namespace TicketSupport.WEB.Controllers
                             "image/png",
                             "image/jpeg",
                             "image/gif",
-                            "application/vnd.ms-excel",
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            "application/msword",
-                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                            "application/vnd.ms-powerpoint",
-                            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                            "text/plain",
                             "application/pdf"
                         };
                                 var type_allowed = allowed_types.FirstOrDefault(x => x.Contains(formFile.ContentType));
@@ -501,6 +497,47 @@ namespace TicketSupport.WEB.Controllers
 
             return await Task.FromResult(Json("false"));
         }
+
+
+        public async Task<List<AttachmentFileInfo>> GetTicketAttachments(string ticket_id)
+        {
+            var data = await _ticketService.GetTicketAsync(ticket_id);
+            if (data != null)
+            {
+                string user_ticket_attachments_folder_path = Path.Combine(this._hostingEnvironment.ContentRootPath, "Attachments", data.CreatedBy, ticket_id.ToString());
+
+                if (Directory.Exists(user_ticket_attachments_folder_path))
+                {
+
+                    List<AttachmentFileInfo> files_name = new List<AttachmentFileInfo>();
+                    var files = Directory.GetFiles(user_ticket_attachments_folder_path);
+                    if (files != null)
+                    {
+                        foreach (var item in files)
+                        {
+                            var ext = Path.GetExtension(item);
+                            files_name.Add(new AttachmentFileInfo
+                            {
+                                ContentType = ext,
+                                Size = item.Length,
+                                Name = Path.GetFileName(item),
+                                Base64String = Convert.ToBase64String(System.IO.File.ReadAllBytes(item))
+
+                            });
+                        }
+
+                        return files_name;
+                    }
+
+                    return null;
+                }
+
+                return null;
+
+            }
+            return null;
+        }
+       
 
     }
 }
