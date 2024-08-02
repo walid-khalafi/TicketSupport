@@ -2,8 +2,25 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-
-    ViewData["Title"] = ViewData["ticket_type"].ToString();
+    string title = "";
+    switch (ViewData["ticket_type"].ToString())
+    {
+        case "inbox":
+            title = "تیکت های دریافتی";
+            break;
+        case "outbox":
+            title = "تیکت های ارسالی";
+            break;
+        case "closed":
+            title = "تیکت های بسته شده";
+            break;
+        case "solved":
+            title = "تیکت های برطرف شده";
+            break;
+        default:
+            break;
+    }
+    ViewData["Title"] = title;
     ViewData["Parent_Title"] = "تیکت ها";
 
 }
