@@ -313,52 +313,83 @@ namespace TicketSupport.WEB.Controllers
         public async Task<IActionResult> Details(string id)
         {
 
+
             if (string.IsNullOrWhiteSpace(id))
             {
                 return StatusCode(404);
             }
 
-            var model = await _ticketService.GetTicketAsync(id);
-            if (model == null)
+            DetailsViewModel model = new DetailsViewModel()
+            {
+                Attachments = new List<AttachmentFileInfo>(),
+                Replays = new List<ReplayTicketModel>(),
+                TicketUsersSupport = new List<UserListModel>(),
+                AssignedUser = new UserListModel(),
+            };
+
+            var ticket = await _ticketService.GetTicketAsync(id);
+            if (ticket == null)
             {
                 return StatusCode(404);
             }
-
-            ViewData["can_assign_user"] = await _ticketService.CanAssignUserToTicket(model.Id);
-
-            await _ticketService.StateSeenTicketAsync(id);
-            var drp_users = await _ticketService.GetTicketUsersSupport(id);
-            ViewData["drp_users"] = new SelectList(drp_users, "user_id", "full_name");
-            UserListModel assined_user = new UserListModel();
-            if (model.Assign != null)
+            var department = await _context.Departments.FindAsync(ticket.DepartmentId);
+            var departmentService = await _context.DepartmentServices.FindAsync(ticket.DepartmentServiceId);
+            if (department!=null)
             {
-                var assign_users = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TicketAssignModel>>(model.Assign);
-                if (assign_users == null)
+                model.Department = department;
+            }
+            if (departmentService !=null)
+            {
+                model.DepartmentService = departmentService;
+            }
+            model.Subject = ticket.Subject;
+            model.Body = ticket.Body;
+            model.IsClosed = await _ticketService.IsTicketClosedAsync(ticket.Id);
+            model.IsResolved = await _ticketService.IsTicketResolvedAsync(ticket.Id);
+            model.CanAssignUserToTicket = await _ticketService.CanAssignUserToTicket(ticket.Id);
+            model.TicketUsersSupport.AddRange(await _ticketService.GetTicketUsersSupport(id));
+            model.CreatedAt = ticket.CreatedAt;
+            model.CreatedBy = await _profileService.GetUserProfileAsync(ticket.CreatedBy);
+            await _ticketService.StateSeenTicketAsync(id);
+
+            try
+            {
+                if (ticket.Assign != null)
                 {
-                    assined_user.user_id = Guid.Empty.ToString();
-                    assined_user.full_name = "تیکت هنوز به کاربری اختصاص داده نشده است";
+                    var assign_users = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TicketAssignModel>>(ticket.Assign);
+                    if (assign_users == null)
+                    {
+                        model.AssignedUser.user_id = Guid.Empty.ToString();
+                        model.AssignedUser.full_name = "تیکت هنوز به کاربری اختصاص داده نشده است";
+                    }
+                    else
+                    {
+                        var last_assigned = assign_users.OrderByDescending(x => x.assigned_date).First();
+                        var selected_user = await _profileService.GetUserProfileAsync(last_assigned.user_id);
+                        if (selected_user != null)
+                        {
+                            model.AssignedUser.user_id = selected_user.Id;
+                            model.AssignedUser.full_name = selected_user.FullName;
+                            model.AssignedUser.avatar = selected_user.Avatar;
+                            model.AssignedUser.date = last_assigned.assigned_date;
+                        }
+                    }
                 }
                 else
                 {
-                    var last_assigned = assign_users.OrderByDescending(x => x.assigned_date).First();
-                    var selected_user = await _profileService.GetUserProfileAsync(last_assigned.user_id);
-                    if (selected_user != null)
-                    {
-                        assined_user.user_id = selected_user.Id;
-                        assined_user.full_name = selected_user.FullName;
-                        assined_user.avatar = selected_user.Avatar;
-                        assined_user.date = last_assigned.assigned_date;
-                    }
+                    model.AssignedUser.user_id = Guid.Empty.ToString();
+                    model.AssignedUser.full_name = "تیکت هنوز به کاربری اختصاص داده نشده است";
+                }
 
+                if (!string.IsNullOrWhiteSpace(ticket.Replays))
+                {
+                    model.Replays = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ReplayTicketModel>>(ticket.Replays);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                assined_user.user_id = Guid.Empty.ToString();
-                assined_user.full_name = "تیکت هنوز به کاربری اختصاص داده نشده است";
+                Console.WriteLine(ex.ToString());
             }
-            ViewData["assined_user"] = assined_user;
-           
             return View(model);
         }
 
