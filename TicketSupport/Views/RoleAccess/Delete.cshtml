@@ -1,0 +1,47 @@
+﻿@model TicketSupport.DAL.Entities.User.RoleAccess
+
+@{
+    ViewData["Title"] = "حذف سطح دسترسی";
+}
+
+<div class="col-md-12">
+    <h3 class="text-danger">آیا از حذف این سطح دسترسی اطمینان دارید ؟</h3>
+    <div class="card">
+        <div class="card-header">حذف سطح دسترسی</div>
+        <div class="card-body">
+            <dl class="row">
+               
+
+                
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.ManageRoleAccess)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.ManageRoleAccess)
+                </dd>
+                
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Department)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Department)
+                </dd>
+
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Users)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Users)
+                </dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <input type="submit" value="حذف" class="btn btn-danger" />
+                <a asp-action="Index" class="btn btn-primary text-white">بازگشت به لیست</a>
+            </form>
+        </div>
+
+    </div>
+
+</div>

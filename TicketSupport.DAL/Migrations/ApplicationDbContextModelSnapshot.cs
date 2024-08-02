@@ -451,6 +451,9 @@ namespace TicketSupport.DAL.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("Department")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("EditedAt")
                         .HasColumnType("datetime(6)");
 

@@ -1,0 +1,50 @@
+﻿@model IEnumerable<TicketSupport.DAL.Entities.User.RoleAccess>
+@inject TicketSupport.DAL.ApplicationDbContext _context
+@{ ViewData["Title"] = "مدیریت سطوح دسترسی";
+    ViewData["Parent_Title"] = "مدیریت";
+}
+
+<style>
+    td, th {
+        text-align: center;
+    }
+</style>
+
+<div class="col-md-12">
+    <p class="m-b-10">
+        <a asp-action="Create" class="btn btn-primary text-white">افزودن سطح دسترسی</a>
+    </p>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped" width="100%">
+                    <thead>
+                        <tr>
+                            <th>عنوان سطح دسترسی</th>
+
+                            <th width="50">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var role = await Task.FromResult(_context.Roles.FirstOrDefault(x => x.Id == item.Id));
+                            <tr>
+                                <td>
+                                    @role.Name
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning text-white"> <i class="fa fa-pencil"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger text-white"> <i class="fa fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

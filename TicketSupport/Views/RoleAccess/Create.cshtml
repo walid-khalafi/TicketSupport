@@ -1,0 +1,76 @@
+﻿@model TicketSupport.DAL.Entities.User.RoleAccess
+
+@{
+    ViewData["Title"] = "ایجاد سطح دسترسی";
+    ViewData["Parent_Title"] = "مدیریت";
+}
+<div class="col-md-12">
+    <form asp-action="Create">
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <label class="control-label">عنوان سطح دسترسیی</label>
+            <input type="text" Id="role_title " name="role_title" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <div class="card">
+                <div class="card-header">
+                    <strong>تعیین سطح دسترسی  </strong>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+
+             
+                        <div class="col-md-3">
+                            <label asp-for="ManageRoleAccess" class="control-label"></label>
+                            @Html.DropDownList("ManageRoleAccess", Html.GetEnumSelectList<TicketSupport.DAL.Enums.AccessLevel>(), null, new { @class = "form-control" })
+                            <span asp-validation-for="ManageRoleAccess" class="text-danger"></span>
+                        </div>
+                        
+   
+                        <div class="col-md-3">
+                            <label asp-for="Department" class="control-label"></label>
+                            @Html.DropDownList("Department", Html.GetEnumSelectList<TicketSupport.DAL.Enums.AccessLevel>(), null, new { @class = "form-control" })
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Users" class="control-label"></label>
+                            @Html.DropDownList("Users", Html.GetEnumSelectList<TicketSupport.DAL.Enums.AccessLevel>(), null, new { @class = "form-control" })
+                            <span asp-validation-for="Users" class="text-danger"></span>
+                        </div>
+
+
+
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="form-group m-4">
+
+            <input type="submit" value="ایجاد سطح دسترسی" class="btn btn-success" />
+            <a class="btn btn-primary text-white" asp-action="Index">بازگشت به لیست</a>
+
+        </div>
+
+    </form>
+
+  
+
+</div>
+
+<div>
+
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
