@@ -121,27 +121,27 @@ namespace TicketSupport.WEB.Controllers
                 {
                     case TicketPriority.very_high:
                         ticket_priority = "خیلی زیاد";
-                        priority_css_class = "bg-danger";
+                        priority_css_class = "badge-danger";
                         break;
                     case TicketPriority.high:
                         ticket_priority = "زیاد";
-                        priority_css_class = "bg-danger";
+                        priority_css_class = "badge-danger";
                         break;
                     case TicketPriority.medium:
                         ticket_priority = "متوسط";
-                        priority_css_class = "bg-warning";
+                        priority_css_class = "badge-warning";
                         break;
                     case TicketPriority.low:
                         ticket_priority = "کم";
-                        priority_css_class = "bg-primary";
+                        priority_css_class = "badge-primary";
                         break;
                     case TicketPriority.very_low:
                         ticket_priority = "خیلی کم";
-                        priority_css_class = "bg-info";
+                        priority_css_class = "badge-info";
                         break;
                     default:
                         ticket_priority = "تعیین نشده";
-                        priority_css_class = "bg-info";
+                        priority_css_class = "badge-info";
                         break;
                 }
 
