@@ -16,7 +16,7 @@
 
 
     th, td {
-        text-align: right;
+        text-align: right!important;
         font-size: small !important;
     }
 
@@ -165,13 +165,13 @@
                         if (data.last_closed_status != "") {
 
                             if (data.last_resolved_status != "") {
-                                return '<small class="label label-danger">' + data.last_closed_status + '</small> <small class="label label-success" > برطرف شده</small >';
+                                return '<small class="badge badge-pill badge-danger">' + data.last_closed_status + '</small> <small class="label label-success" > برطرف شده</small >';
                             }
 
-                            return '<small class="label label-danger">' + data.last_closed_status + '</small>';
+                            return '<small class="badge badge-pill badge-danger">' + data.last_closed_status + '</small>';
 
                         } else if (data.last_resolved_status != "") {
-                            return '<small class="label label-success">برطرف شده</small>';
+                            return '<small class="badge badge-pill badge-success">برطرف شده</small>';
                         }
 
                         return '';
@@ -180,7 +180,7 @@
                 },
                 {
                     data: null, "name":"priority",render: function (data, type, row) {
-                            return '<small class="label ' + data.priority_css_class + '">' + data.priority+'</small>';
+                        return '<small class="badge badge-pill  ' + data.priority_css_class + '">' + data.priority+'</small>';
                     }
                 },
                 { "data": "user_assigned", "name": "user_assigned" },
