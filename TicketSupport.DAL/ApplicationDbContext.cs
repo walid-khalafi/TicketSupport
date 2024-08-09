@@ -3,6 +3,7 @@ using TicketSupport.DAL.Entities.Catalog;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TicketSupport.DAL.Entities.User;
+using TicketSupport.DAL.Entities.License;
 
 namespace TicketSupport.DAL
 {
@@ -21,6 +22,7 @@ namespace TicketSupport.DAL
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<DepartmentService> DepartmentServices { get; set; }
+        public DbSet<UserLicense> UserLicenses { get; set; }
     }
 }
 
