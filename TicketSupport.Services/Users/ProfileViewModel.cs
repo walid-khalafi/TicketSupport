@@ -15,6 +15,8 @@ namespace TicketSupport.Services.Users
         public string FirstName { get; set; }
         [Display(Name = "نام خانوادگی")]
         public string LastName { get; set; }
+        [Display(Name = "نام شرکت")]
+        public string CompanyName { get; set; }
         [Display(Name = "نام کاربری")]
         public string Username { get; set; }
         [Display(Name = "ایمیل")]

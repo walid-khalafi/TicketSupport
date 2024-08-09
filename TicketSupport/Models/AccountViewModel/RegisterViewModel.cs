@@ -6,11 +6,18 @@ namespace TicketSupport.WEB.Models.AccountViewModel
     public class RegisterViewModel
     {
 
+        [Display(Name ="نام")]
+        public string FirstName { get; set; }
+         [Display(Name ="نام خانوادگی")]
+        public string LastName { get; set; }
+         [Display(Name ="نام شرکت")]
+        public string CompanyName { get; set; }
+         [Display(Name ="دپارتمان")]
+        public string DepartmentId { get; set; }
         [Required]
         [EmailAddress]
         [Display(Name = "ایمیل")]
         public string Email { get; set; }
-
         [Required]
         [DataType(DataType.PhoneNumber)]
         [Display(Name = "موبایل")]

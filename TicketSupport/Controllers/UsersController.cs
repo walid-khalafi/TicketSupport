@@ -67,7 +67,7 @@ namespace TicketSupport.WEB.Controllers
         [HttpPost]
        
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(RegisterViewModel model, string FirstName, string LastName,string DepartmentId)
+        public async Task<IActionResult> Create(RegisterViewModel model)
         {
             bool isPhoneNumber = IsPhoneNumber(model.PhoneNumber);
             if (!isPhoneNumber)
@@ -97,8 +97,8 @@ namespace TicketSupport.WEB.Controllers
                 _context.Profiles.Add(new DAL.Entities.User.Profile()
                 {
                     Avatar = string.Empty,
-                    FirstName = FirstName,
-                    LastName = LastName,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
                     ThemeColor = "light",
                     Id = user_id,
                     NavigationSize = "normal-navigation",
@@ -106,12 +106,13 @@ namespace TicketSupport.WEB.Controllers
                     CreatedBy = _user_id,
                     IPAddress = _ipAddress,
                     DeletedAt = DateTime.Now,
-                    DepartmentId = DepartmentId,
+                    DepartmentId = model.DepartmentId,
                     EditedAt = DateTime.Now,
                     EditedBy = _user_id,
                     IsDeleted = false,
+                    CompanyName = model.CompanyName
                 });
-                _context.SaveChanges();
+              
                 var role = _context.Roles.FirstOrDefault(x => x.Name == "Client");
                 if (role == null)
                 {
@@ -122,21 +123,20 @@ namespace TicketSupport.WEB.Controllers
                         Name = "Client",
                         NormalizedName = "CLIENT",
                     });
-                    _context.Profiles.Add(new DAL.Entities.User.Profile()
-                    {
-                        Avatar = string.Empty,
-                        FirstName = FirstName,
-                        LastName = LastName,
-                        ThemeColor = "light",
-                        Id = user_id,
-                        NavigationSize = "normal-navigation"
-                    });
-                    _context.SaveChanges();
+                 
                 }
 
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch(Exception ex){
+                    Console.WriteLine(ex.Message);
+                }
+                 
                 await _userManager.AddToRoleAsync(user, "Client");
 
-                TempData["success_msg"] = string.Format("اطلاعات کاربر {0} {1} با موفقیت در سیستم ثبت شد", FirstName, LastName);
+                TempData["success_msg"] = string.Format("اطلاعات کاربر {0} {1} با موفقیت در سیستم ثبت شد", model.FirstName, model.LastName);
                 return RedirectToAction("Create");
 
             }
@@ -186,7 +186,8 @@ namespace TicketSupport.WEB.Controllers
                             Username = profile.Username,
                             TwoFactorEnabled = item.TwoFactorEnabled,
                             Role = (roles.Count > 0 ? roles[0] : ""),
-                           DepartmentId = (department !=null ? department.Title:""),
+                            DepartmentId = (department !=null ? department.Title:""),
+                            CompanyName = profile.CompanyName
                         });
                     }
                     catch (Exception ex)

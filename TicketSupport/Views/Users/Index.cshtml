@@ -32,6 +32,7 @@
                     <tr>
                         <th></th>
                         <th>دپارتمان</th>
+                        <th>نام شرکت</th>
                         <th>نام و نام خانوادگی</th>
                         <th>نام کاربری</th>
                         <th>سطح دسترسی</th>
@@ -46,6 +47,7 @@
                     <tr>
                         <th></th>
                         <th>دپارتمان</th>
+                        <th>نام شرکت</th>
                         <th>نام و نام خانوادگی</th>
                         <th>نام کاربری</th>
                         <th>سطح دسترسی</th>
@@ -90,11 +92,13 @@
                     }
                 },
                 { "data": "departmentId", "name": "departmentId" },
+                  { "data": "companyName", "name": "companyName" },
                 {
                     data: null, render: function (data, type, row) {
                         return data.firstName + " " + data.lastName;
                     }
                 },
+              
                 { "data": "username", "name": "username" },
                 {
                     data: null, render: function (data, type, row) {

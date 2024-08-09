@@ -181,6 +181,7 @@ namespace TicketSupport.Services.Users
                     model.Avatar = profile.Avatar;
                     model.NavigationSize = profile.NavigationSize;
                     model.DepartmentId = profile.DepartmentId;
+                    model.CompanyName = profile.CompanyName;
 
                 }
                 var role = await GetUserRolesAsync(user.Id);
